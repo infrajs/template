@@ -1,0 +1,5 @@
+{
+	"template":{
+		"require":"*template/infra.php"
+	}
+}

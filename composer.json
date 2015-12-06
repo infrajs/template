@@ -1,0 +1,11 @@
+{
+	"name": "infrajs/template",
+	"license": "GPL3",
+	"autoload": {
+		"psr-4": { "infrajs\\template\\": "/" }
+	},
+	"require":{
+		"infrajs/once":"~1",
+		"infrajs/sequence":"~1"
+	}
+}
