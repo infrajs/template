@@ -344,7 +344,7 @@ class Template {
 		 * */
 		
 		$ar = array();
-		//infra_forr($var, function &(&$v) use (&$conf, &$ar) {
+		//Each::forr($var, function &(&$v) use (&$conf, &$ar) {
 		foreach ($var as $i => $v) {
 			//'[asdf,asdf,[asdf],asdf]'
 			if (is_string($v) || is_int($v)) {
@@ -735,7 +735,7 @@ class Template {
 		$cond = explode(',', $exp);
 		if (sizeof($cond) > 1) {
 			$res['var'] = array();
-			//infra_forr($cond, function &($c) use (&$res) {
+			//Each::forr($cond, function &($c) use (&$res) {
 			foreach ($cond as $c) {
 				$res['var'][] = static::parseexp($c, true);
 			};
