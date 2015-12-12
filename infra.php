@@ -1,6 +1,6 @@
 <?php
 namespace infrajs\template;
-use infrajs\infra\Load;
+use infrajs\load\Load;
 
 Template::$fs['load'] = function ($src) {
 	return Load::loadTEXT($src);
