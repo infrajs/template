@@ -1,5 +1,6 @@
 {
 	"template":{
-		"require":"*template/infra.php"
+		"require":"-template/infra.php",
+		"tester":"-template/tests/"
 	}
 }

@@ -74,7 +74,7 @@ $data = array(
 	),
 );
 
-$html = Template::parse('*template/tests/resources/simpletpl.html', $data, 'text', 'company.UzDaewoo');
+$html = Template::parse('-template/tests/resources/simpletpl.html', $data, 'text', 'company.UzDaewoo');
 
 if ($html == 'title:MalibuVestayear:2014Vestamileage:100Vesta') {
 $ans['result'] = 1;

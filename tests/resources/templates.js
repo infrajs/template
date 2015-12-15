@@ -1,11 +1,11 @@
 		
 
 	infra.template.test=function(k){
-		infra.unload('*infra/ext/template.js');
-		infra.require('*infra/ext/template.js');
+		infra.unload('-infra/ext/template.js');
+		infra.require('-infra/ext/template.js');
 		infra.template.test=arguments.callee;
-		infra.unload('*infra/tests/resources/templates.json');
-		var tpls=infra.loadJSON('*infra/tests/resources/templates.json');
+		infra.unload('-infra/tests/resources/templates.json');
+		var tpls=infra.loadJSON('-infra/tests/resources/templates.json');
 		infra.forr(tpls,function(t,key){
 			if(typeof(k)!=='undefined'&&key!==k)return;
 			

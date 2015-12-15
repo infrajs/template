@@ -546,7 +546,7 @@ class Template {
 						$h .= static::exec($conf['tpls'], $conf['data'], $tpl, $droot);
 					}
 				}
-				/*infra_foru($v,function(&$v,$k) use(&$d,&$h,&$conf,&$lastroot,&$tpl){
+				/* infra_foru($v,function(&$v,$k) use(&$d,&$h,&$conf,&$lastroot,&$tpl){
 					$droot=array_merge($lastroot,array($k));
 					$h.=static::exec($conf['tpls'],$conf['data'],$tpl,$droot);
 				});*/

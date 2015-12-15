@@ -12,7 +12,7 @@ if(!$isinfra){
 	require_once('../../../../vendor/autoload.php');
 	$tpl="{:inc.test}{inc::}resources/inc.tpl";
 } else {
-	$tpl="{:inc.test}{inc::}*template/tests/resources/inc.tpl";
+	$tpl="{:inc.test}{inc::}-template/tests/resources/inc.tpl";
 }
 
 

@@ -34,7 +34,7 @@ parse
 /*
  * Функции берутся в следующем порядке сначало от this в данных потом от корня данных потом в спецколлекции потом в глобальной области
  **/
-infra.require('*infra/ext/seq.js');
+infra.require('-infra/ext/seq.js');
 infra.template={
 	store:function(name){
 		if(!this.store.data)this.store.data={cache:{}};
@@ -508,8 +508,8 @@ infra.template={
 		return v;
 	},
 	test:function(){
-		infra.unload('*infra/tests/resources/templates.js');
-		infra.require('*infra/tests/resources/templates.js');
+		infra.unload('-infra/tests/resources/templates.js');
+		infra.require('-infra/tests/resources/templates.js');
 		if(infra.template.test.good){
 			infra.template.test.apply(this,arguments);
 		}else{
