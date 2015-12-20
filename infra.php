@@ -1,7 +1,7 @@
 <?php
 namespace infrajs\template;
 use infrajs\load\Load;
-use infrajs\infra\Infra;
+use infrajs\infra\Config;
 use infrajs\sequence\Sequence;
 use infrajs\path\Path;
 use infrajs\view\view;
@@ -14,8 +14,12 @@ $fn = function ($path) {
 };
 Sequence::set(Template::$scope, array('infra', 'theme'), $fn);
 
-$conf = &Infra::pub();
-Sequence::set(Template::$scope, array('infra', 'conf'), $conf);
+
+$fn = function ($name=null) {
+	return $conf = Config::pub($name);
+};
+Sequence::set(Template::$scope, array('infra', 'config'), $fn);
+
 $fn = function () {
 	return View::getPath();
 };
