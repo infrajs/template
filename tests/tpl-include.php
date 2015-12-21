@@ -1,7 +1,7 @@
 <?php
 namespace infrajs\template;
 use infrajs\template\Template;
-use infrajs\infra\Config;
+use infrajs\config\Config;
 
 /*
 	В infra все пути относительные... относительно корня, несмотря на то где реально находится файл

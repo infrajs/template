@@ -1,7 +1,7 @@
 <?php
 namespace infrajs\template;
 use infrajs\load\Load;
-use infrajs\infra\Config;
+use infrajs\config\Config;
 use infrajs\sequence\Sequence;
 use infrajs\path\Path;
 use infrajs\view\view;
