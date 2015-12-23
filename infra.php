@@ -9,49 +9,50 @@ use infrajs\view\view;
 Template::$fs['load'] = function ($src) {
 	return Load::loadTEXT($src);
 };
-$fn = function ($path) {
+$fn1 = function ($path) {
 	return Path::theme($path);
 };
-Sequence::set(Template::$scope, array('infra', 'theme'), $fn);
+Sequence::set(Template::$scope, array('infra', 'theme'), $fn1);
 
-
-$fn = function ($name=null) {
+$fn2 = function ($name=null) {
 	return $conf = Config::pub($name);
 };
-Sequence::set(Template::$scope, array('infra', 'config'), $fn);
 
-$fn = function () {
+Sequence::set(Template::$scope, array('infra', 'config'), $fn2);
+
+$fn3 = function () {
 	return View::getPath();
 };
-Sequence::set(Template::$scope, array('infra', 'view', 'getPath'), $fn);
+Sequence::set(Template::$scope, array('infra', 'view', 'getPath'), $fn3);
 
-$fn = function () {
+$fn4 = function () {
 	return View::getHost();
 };
-Sequence::set(Template::$scope, array('infra', 'view', 'getHost'), $fn);
+Sequence::set(Template::$scope, array('infra', 'view', 'getHost'), $fn4);
 
-$fn = function ($s) {
+$fn5 = function ($s) {
 	return Sequence::short($s);
 };
-Sequence::set(Template::$scope, array('infra', 'seq', 'short'), $fn);
+Sequence::set(Template::$scope, array('infra', 'seq', 'short'), $fn5);
 
-$fn = function ($s) {
+$fn6 = function ($s) {
 	return Sequence::right($s);
 };
-Sequence::set(Template::$scope, array('infra', 'seq', 'right'), $fn);
+Sequence::set(Template::$scope, array('infra', 'seq', 'right'), $fn6);
 
-$fn = function () {
+$fn7 = function () {
 	return View::getRoot();
 };
-Sequence::set(Template::$scope, array('infra', 'view', 'getRoot'), $fn);
-$fn = function ($src) {
+Sequence::set(Template::$scope, array('infra', 'view', 'getRoot'), $fn7);
+$fn8 = function ($src) {
 	return Load::srcInfo($src);
 };
 
-Sequence::set(Template::$scope, array('infra', 'srcinfo'), $fn);
+Sequence::set(Template::$scope, array('infra', 'srcinfo'), $fn8);
 
 $host = $_SERVER['HTTP_HOST'];
 $p = explode('?', $_SERVER['REQUEST_URI']);
 $pathname = $p[0];
 Sequence::set(Template::$scope, array('location', 'host'), $host);
 Sequence::set(Template::$scope, array('location', 'pathname'), $pathname);
+
