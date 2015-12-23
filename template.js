@@ -34,7 +34,7 @@ parse
 /*
  * Функции берутся в следующем порядке сначало от this в данных потом от корня данных потом в спецколлекции потом в глобальной области
  **/
-define('?-template/template.js', ['?-sequence/sequence.js'], function (sequence){
+define('/-template/template.js', ['/-sequence/sequence.js'], function (sequence){
 	infra.template={
 		store:function(name){
 			if(!this.store.data)this.store.data={cache:{}};
