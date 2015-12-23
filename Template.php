@@ -251,24 +251,28 @@ class Template {
 	public static function &make($url, $tplempty = 'root')
 	{
 		$args=array($url, $tplempty);
-		return Once::exec('static::make', function ($url, $tplempty) {
-			
+		
+		$tpls=Once::exec('Infrajs::Template::make', function ($url, $tplempty) {
+
 			if (is_array($url)) $template=$url[0];
 			else $template=static::load($url);
 
 			$ar = static::prepare($template);
 			static::analysis($ar);
-
 			$tpls = static::getTpls($ar, $tplempty);
+			
 			if (!$tpls) {
 				$tpls[$tplempty] = array();
 			}//Пустой шаблон добавляется когда вообще ничего нет
 			//$res=static::parseEmptyTpls($tpls);
 			static::includes($tpls);
-
+			
+			
 			return $tpls;
 		}, $args);
+
 		
+		return $tpls;
 	}
 	public static function exec(&$tpls, &$data, $tplroot = 'root', $dataroot = '')
 	{
@@ -616,6 +620,7 @@ class Template {
 			if (is_array($ar[$i]) && isset($ar[$i]['template'])) {
 				//Если это шаблон
 				$subtpl = $ar[$i]['template'];
+
 				$res[$subtpl] = array();//Для пустых определённый шаблонво, кроме root по умолчанию, для него массив не появится
 				continue;
 			};
@@ -725,7 +730,7 @@ class Template {
 		}//в имени функции может содержать замены xinsert asdf[xinsert1].asdf. Массив как с запятыми но нужен только нулевой элемент, запятых не может быть/ Они уже отсеяны
 
 		$exp = static::parseStaple($exp);
-
+		
 	//Сюда проходит выражение exp без скобок, с заменами их на псевдо переменные
 		$l = mb_strlen($exp);
 		if ($l > 1 && mb_substr($exp,$l - 1,1) == ':' && mb_strpos($exp, ',') === false) {
@@ -904,6 +909,7 @@ class Template {
 			} elseif (!$start) {
 				//:[] ищем двоеточее вне скобок
 				if ($sym == ':') {
+
 					$tpl = substr($var, $i + 1);
 					//echo $tpl;
 					$r = array();
@@ -916,7 +922,9 @@ class Template {
 					if ($r['multi']) {
 						$tpl = substr($tpl, 1);
 					}
+					
 					$r['tpl'] = static::make(array($tpl));
+					
 					if (!isset($r['tpl']['root'])) {
 						$r['tpl']['root'] = array('');
 					}
