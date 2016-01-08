@@ -4,7 +4,16 @@ use infrajs\load\Load;
 use infrajs\config\Config;
 use infrajs\sequence\Sequence;
 use infrajs\path\Path;
+use infrajs\path\URN;
 use infrajs\view\view;
+
+
+Template::$conf['root']=URN::getAbsRoot();
+
+
+
+Sequence::set(Template::$scope, array('~root'), Template::$conf['root']);
+
 
 Template::$fs['load'] = function ($src) {
 	return Load::loadTEXT($src);

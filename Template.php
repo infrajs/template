@@ -40,6 +40,7 @@ parse
  **/
 
 class Template {
+	public static $conf=array();
 	public static $fs=array();
 	public static $md = array();
 	public static $moment = false;
