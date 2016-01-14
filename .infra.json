@@ -2,6 +2,6 @@
 	"pub":["root"],
 	"conf":"infrajs\\template\\Template",
 	"require":"infra.php",
-	"js":"template.js",
+	"js":["template.js","infra.js"],
 	"tester":"tests/"
 }
