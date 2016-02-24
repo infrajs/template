@@ -73,6 +73,7 @@
 			}
 		};
 		$ans['msg']='Всё ок';
+		$ans['result']=1;
 		echo json_encode($ans, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 		return;
 	}

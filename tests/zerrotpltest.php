@@ -16,6 +16,7 @@ if (!is_file('vendor/autoload.php')) {
 
 	$ans = array(
 		'title' => 'Тест 0 элемента в массиве. Известная проблема.',
+		'class' => 'bg-warning'
 	);
 
 $tpl = '{root:}{0:test}{test:}{title}';
@@ -29,7 +30,7 @@ $tpl = '{root:}{0:test}{test:}{title}';
 
 $ans['class'] = 'bg-warning';
 	if ($html != 'good') {
-		return Ans::err($ans, '0 элемент принят за false как будто его нет');
+		return Ans::ret($ans, '0 элемент принят за false как будто его нет');
 	}
 
 return Ans::ret($ans, 'Теcт пройдены. Получился ожидаемый результат поле распарсивания шаблона.');
