@@ -1213,7 +1213,6 @@ Template::$scope = array(
 	'~first' => function () {
 		//Возвращает true или false первый или не первый это элемент
 		$conf = Template::$moment;
-
 		$dataroot = $conf['dataroot'];
 		$key = array_pop($dataroot);
 		$obj = &Sequence::get($conf['data'], $dataroot);

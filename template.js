@@ -477,6 +477,16 @@ infra.template={
 			return v;
 		}
 	},
+	foru: function(obj,callback){//Бежим без разницы объекту или массиву
+		if (obj && typeof(obj) == 'object' && obj.constructor === Array) {
+			return infra.forr(obj,callback);//Массив
+		} else {
+			for (var i in obj) {
+				var r = callback(obj[i], i, obj);
+				if (infra.isNull(r)) return r;
+			}
+		}
+	},
 	getOnlyVar:function(conf,d,term,i){
 		if(!i)i=0;
 		if(typeof(d['tpl'])=='object'){ //{asdf():tpl}
@@ -491,7 +501,7 @@ infra.template={
 				var droot=lastroot.concat();
 				h=this.exec(conf['tpls'],conf['data'],tpl,droot);
 			}else{
-				infra.foru(v,function(v,k){
+				this.foru(v,function(v,k){
 					var droot=lastroot.concat([k]);
 					h+=infra.template.exec(conf['tpls'],conf['data'],tpl,droot);
 				});
@@ -972,24 +982,6 @@ infra.template={
 			var res=infra.template.parse([str],conf.data,'root',conf['dataroot'],'root');//(url,data,tplroot,dataroot,tplempty){
 			return res;
 		},
-		'$last':function(){
-			return infra.template.scope['~last']();
-		},
-		'~last':function(){
-			var conf=infra.template.moment;
-			var dataroot=conf['dataroot'].concat();
-			var key=dataroot.pop();
-			var obj=infra.seq.get(conf['data'],dataroot);
-
-			var k;
-			infra.foru(obj,function(v,key){
-				k=key;
-			});
-			return (k===key);
-		},
-		'$words':function(){
-			return infra.template.scope['~words'].apply(this,arguments);
-		},
 		'~words':function(count,one,two,five){
 			if(!count)count=0;
 			if(count>20){
@@ -1006,20 +998,10 @@ infra.template={
 				return five;
 			}
 		},
-		'$leftOver':function(a,b){
-			return infra.template.scope['~leftOver'](a,b);
-		},
 		'~leftOver':function(first,second){//Кратное
 			first=Number(first);
 			second=Number(second);
 			return first%second;
-		},
-		'$sum':function(a,b,c,d){
-			a=Number(a);
-			b=Number(b);
-			c=Number(c);
-			d=Number(d);
-			return infra.template.scope['~sum'](a,b,c,d);
 		},
 		'~sum':function(){
 			var args=arguments;
@@ -1039,9 +1021,6 @@ infra.template={
 			for(i=0,l=args.length;i<l;i++) n*=Number(args[i]);
 			return n;
 		},
-		'$even':function(){
-			return infra.template.scope['~even'].apply(this,arguments);
-		},
 		'~even':function(){
 			var conf=infra.template.moment;
 			var dataroot=conf['dataroot'].concat();
@@ -1049,34 +1028,46 @@ infra.template={
 			var obj=infra.seq.get(conf['data'],dataroot);
 
 			var even=1;
-			infra.foru(obj,function(v,k){
+			infra.template.foru(obj,function(v,k){
 				if(k==key)return false;
 				even=even*-1;
 			});
 			return (even==1);
 		},
-		'$odd':function(){
-			return infra.template.scope['~odd'].apply(this,arguments);
-		},
-
 		'~odd':function(){
 			return !infra.template.scope['~even']();
 		},
-		'$first':function(){
-			return infra.template.scope['~first'].apply(this,arguments);
+		'~last':function(){
+			var conf = infra.template.moment;
+			var dataroot = conf['dataroot'].concat();
+			var key = dataroot.pop();
+			var obj = infra.seq.get(conf['data'], dataroot);
+
+			if (typeof(obj) != 'object') return true;
+
+			if (obj.constructor === Array) {
+				var k = obj.length-1;
+			} else {
+				for (var k in obj);
+			}
+			return (k===key);
 		},
-		'~first':function(){
-			var conf=infra.template.moment;
-			var dataroot=conf['dataroot'].concat();
-			var key=dataroot.pop();
-			var obj=infra.seq.get(conf['data'],dataroot);
-			return infra.foru(obj,function(v,k){
-				if(k=key)return true;
-				return false;
-			});
-		},
-		'$Number':function(){
-			return infra.template.scope['~Number'].apply(this,arguments);
+		'~first': function () {
+			//Возвращает true или false первый или не первый это элемент
+			var conf = infra.template.moment;
+			var dataroot = conf['dataroot'].concat();
+			var key = dataroot.pop();
+			var obj = infra.seq.get(conf['data'], dataroot);
+
+			if (typeof(obj) != 'object') return true;
+			
+			if (obj.constructor === Array) {
+				var k=0;
+			} else {
+				for (var k in obj) break;
+			}
+
+			return (k == key);
 		},
 		'~Number':function(key,def){
 			var n=Number(key);
