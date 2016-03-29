@@ -483,7 +483,7 @@ infra.template={
 		} else {
 			for (var i in obj) {
 				var r = callback(obj[i], i, obj);
-				if (infra.isNull(r)) return r;
+				if (!infra.isNull(r)) return r;
 			}
 		}
 	},
