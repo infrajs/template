@@ -1046,9 +1046,11 @@ infra.template={
 			if (typeof(obj) != 'object') return true;
 
 			if (obj.constructor === Array) {
-				var k = obj.length-1;
+				var k = obj.length - 1;
 			} else {
-				for (var k in obj);
+				for (var k in obj){
+					//Нельзя убирать фигурные скобки, сокращатель скриптов ломается.
+				};
 			}
 			return (k===key);
 		},
