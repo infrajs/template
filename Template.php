@@ -1052,11 +1052,13 @@ Template::$scope = array(
 
 		return $obj;
 	},
+	
+	'~encode' => function($str){
+		if (!is_string($str)) return $str;
+		return urlencode($str);
+	},
 	'~decode' => function ($str) {
-		if (!is_string($str)) {
-			return $str;
-		}
-
+		if (!is_string($str)) return $str;
 		return urldecode($str);
 	},
 	'~length' => function ($obj = null) {

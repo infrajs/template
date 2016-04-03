@@ -907,9 +907,6 @@ infra.template={
 			}
 			return obj;
 		},
-		'$encode':function(str){
-			return infra.template.scope['~encode'](str);
-		},
 		'~encode':function(str){
 			return encodeURIComponent(str);
 		},
