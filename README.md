@@ -30,6 +30,7 @@ $data = array(
 
 ```php
 use infrajs\template\Template;
+require_once('vendor/autoload.php');
 $src = 'Путь/до/шаблона';
 $html = Template::parse($src, $data);
 echo $html; //Привет Алибаба!
