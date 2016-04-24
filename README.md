@@ -12,7 +12,7 @@
 
 ## Использование
 
-**Шаблон**
+**Файл с шаблоном**
 
 ```html
 Привет {name}!
@@ -32,5 +32,5 @@ $data = array(
 use infrajs\template\Template;
 $src = 'Путь/до/шаблона';
 $html = Template::parse($src, $data);
-echo $html;
+echo $html; //Привет Алибаба!
 ```
