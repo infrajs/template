@@ -10,24 +10,18 @@ use infrajs\view\view;
 
 Template::$conf['root']=URN::getAbsRoot();
 
-
-
 Sequence::set(Template::$scope, array('~root'), Template::$conf['root']);
 
 
 Template::$fs['load'] = function ($src) {
 	return Load::loadTEXT($src);
 };
-$fn1 = function ($path) {
-	return Path::theme($path);
-};
-Sequence::set(Template::$scope, array('infra', 'theme'), $fn1);
 
 $fn2 = function ($name=null) {
 	return $conf = Config::pub($name);
 };
-
 Sequence::set(Template::$scope, array('infra', 'config'), $fn2);
+Sequence::set(Template::$scope, array('Config', 'get'), $fn2);
 
 $fn3 = function () {
 	return View::getPath();
