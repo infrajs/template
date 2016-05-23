@@ -8,9 +8,8 @@ use infrajs\path\URN;
 use infrajs\view\view;
 
 
-Template::$conf['root']=URN::getAbsRoot();
-
-Sequence::set(Template::$scope, array('~root'), Template::$conf['root']);
+//Template::$conf['root']=URN::getAbsRoot();
+//Sequence::set(Template::$scope, array('~root'), Template::$conf['root']);
 
 
 Template::$fs['load'] = function ($src) {

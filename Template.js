@@ -1109,7 +1109,6 @@ infra.template={
 
 			return cost;
 		},
-		"~root":infra.conf.template.root,
 		"infra":{
 			"theme":function(path){
 				return infra.theme(path);
