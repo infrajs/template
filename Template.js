@@ -1135,3 +1135,4 @@ infra.template={
 	}
 }
 	/**/
+window.Template = infra.template;
