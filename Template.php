@@ -1208,9 +1208,13 @@ Template::$scope = array(
 		return $n;
 	},
 	'~odd' => function () {
-
-		$r=Template::$scope['~even'];
+		$r = Template::$scope['~even'];
 		return !$r();
+	},
+	'~random' => function () {
+		$args = func_get_args();
+		shuffle($args);
+		return $args[0];
 	},
 	'~first' => function () {
 		//Возвращает true или false первый или не первый это элемент

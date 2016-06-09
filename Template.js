@@ -1051,6 +1051,10 @@ infra.template={
 			}
 			return (k===key);
 		},
+		'~random': function () {
+			var args = arguments;
+			return args[Math.floor(Math.random() * args.length)];
+		},
 		'~first': function () {
 			//Возвращает true или false первый или не первый это элемент
 			var conf = infra.template.moment;
