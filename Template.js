@@ -884,7 +884,7 @@ infra.template={
 		'~years':function(start){
 			y=new Date().getFullYear();
 			if(y==start)return y;
-			return start+'&mdash;'+y;
+			return start+'&ndash;'+y;
 		},
 		'~date':function(format,time){
 			if(!time)return '';

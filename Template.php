@@ -995,7 +995,7 @@ Template::$scope = array(
 			return $y;
 		}
 
-		return $start.'&mdash;'.$y;
+		return $start.'&ndash;'.$y;
 	},
 	'~date' => function ($format, $time = null) {
 		//if(is_null($time))$time=time(); Нельзя выводить текущую дату когда передан null так по ошибке будет не то выводится когда даты просто нет.
