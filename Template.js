@@ -965,9 +965,7 @@ infra.template={
 			if(!str)return '';
 			return str.toUpperCase();
 		},
-		'$indexOf':function(){
-			return infra.template.scope['~indexOf'].apply(this,arguments);
-		},
+		
 		'~indexOf':function(str,v){
 			str=str.toLowerCase();
 			v=v.toLowerCase();
@@ -1033,6 +1031,18 @@ infra.template={
 		},
 		'~odd':function(){
 			return !infra.template.scope['~even']();
+		},
+		'~path': function (src) {
+			//Передаётся либо относительный путь от корня
+			//либо абсолютный путь
+			var obj = infra.template.scope['~_regexps'];
+			var exp = '^https{0,1}:\/\/';
+			if (!obj[exp]) obj[exp] = new RegExp(exp);
+			if (String(src).match(obj[exp])) return src;
+			var exp = '^\/';
+			if (!obj[exp]) obj[exp] = new RegExp(exp);
+			if (String(src).match(obj[exp])) return src;
+			return '/'+src;
 		},
 		'~last':function(){
 			var conf = infra.template.moment;

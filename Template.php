@@ -1211,6 +1211,15 @@ Template::$scope = array(
 		$r = Template::$scope['~even'];
 		return !$r();
 	},
+	'~path' => function ($src) {
+		//Передаётся либо относительный путь от корня
+		//либо абсолютный путь
+
+		//if (preg_match("/^[\-!~]/", $src)) return '/'.$src;
+		if (preg_match("/^https{0,1}:\/\//", $src)) return $src;
+		if (preg_match("/^\//", $src)) return $src;
+		return '/'.$src;
+	},
 	'~random' => function () {
 		$args = func_get_args();
 		shuffle($args);
