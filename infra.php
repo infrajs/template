@@ -1,6 +1,7 @@
 <?php
 namespace infrajs\template;
 use infrajs\load\Load;
+use infrajs\event\Event;
 use infrajs\config\Config;
 use infrajs\sequence\Sequence;
 use infrajs\path\Path;
