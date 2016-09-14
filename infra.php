@@ -21,6 +21,9 @@ $fn2 = function ($name=null) {
 };
 Sequence::set(Template::$scope, array('infra', 'config'), $fn2);
 Sequence::set(Template::$scope, array('Config', 'get'), $fn2);
+Event::one('Controller.oninit', function () {
+	Template::$scope['~conf'] = Config::get();
+});
 
 $fn3 = function () {
 	return View::getPath();
