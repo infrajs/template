@@ -115,7 +115,7 @@ infra.template={
 	},
 	parse:function(url,data,tplroot,dataroot,tplempty){
 		var tpls=this.make(url,tplempty);
-		this.includes(tpls, data, dataroot);
+		tpls = this.includes(tpls, data, dataroot);
 		var text=this.exec(tpls,data,tplroot,dataroot);
 		return text;
 	},
@@ -138,14 +138,16 @@ infra.template={
 	},
 	includes: function (tpls, data, dataroot)
 	{
+		var newtpls = {};
 		var find={};
 		for(var key in tpls) {
+			newtpls[key] = tpls[key];
 			var val=tpls[key];
 			if (val.length<1) continue;
 
 			if (key.charAt(key.length-1) == ':') {
 				var src = Template.exec(tpls, data, key, dataroot);
-				tpls[key] = [];
+				newtpls[key] = [];
 
 				//var src=val[0];
 				//src=src.replace(/<\/?[^>]+>/gi, '');
@@ -176,9 +178,10 @@ infra.template={
 					}
 
 				}
-				tpls[k]=subtpl;
+				newtpls[k]=subtpl;
 			}
 		}
+		return newtpls;
 	},
 	/**
 	 * Var это {(a[:b](c)?d)?e} - a,b,c,d,e 5 интераций, кроме a[:b]

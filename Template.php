@@ -165,25 +165,26 @@ class Template {
 	public static function parse($template, $data = array(), $tplroot = 'root', $dataroot = '', $tplempty = 'root')
 	{
 		$tpls = static::make($template, $tplempty);
-		static::includes($tpls, $data, $dataroot);
+		$tpls = static::includes($tpls, $data, $dataroot);
 
 		$text = static::exec($tpls, $data, $tplroot, $dataroot);
 
 		return $text;
 	}
 	
-	public static function includes(&$tpls)
+	public static function includes($tpls)
 	{
-		
-		$find=array();
+		$newtpls = array();	
+		$find = array();
 		foreach ($tpls as $key => $val) {
+			$newtpls[$key] = $tpls[$key];
 			if (sizeof($val)<1) {
 				continue;
 			}
 			if ($key{mb_strlen($key)-1} == ':') {
 				$data = true;
 				$src = static::exec($tpls, $data, $key);
-				$tpls[$key] = array(); //Иначе два раза применится
+				$newtpls[$key] = array(); //Иначе два раза применится
 				$text=static::load($src);
 				$tpls2=static::make(array($text));
 
@@ -192,6 +193,7 @@ class Template {
 				$find[$key]=$tpls2;
 			}
 		}
+
 
 
 		foreach ($find as $name => &$t) {
@@ -209,9 +211,10 @@ class Template {
 						});
 					}
 				}
-				$tpls[$k]=$subtpl;
+				$newtpls[$k]=$subtpl;
 			}
 		}
+		return $newtpls;
 	}
 	/**
 	 * Var это {(a[:b](c)?d)?e} - a,b,c,d,e 5 интераций, кроме a[:b]
