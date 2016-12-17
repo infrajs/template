@@ -165,6 +165,7 @@ class Template {
 	public static function parse($template, $data = array(), $tplroot = 'root', $dataroot = '', $tplempty = 'root')
 	{
 		$tpls = static::make($template, $tplempty);
+		static::includes($tpls, $data, $dataroot);
 
 		$text = static::exec($tpls, $data, $tplroot, $dataroot);
 
@@ -176,14 +177,13 @@ class Template {
 		
 		$find=array();
 		foreach ($tpls as $key => $val) {
-			if (sizeof($val)!=1) {
+			if (sizeof($val)<1) {
 				continue;
 			}
 			if ($key{mb_strlen($key)-1} == ':') {
-				$tpls[$key]=array();//Иначе два раза применится
-				$src=$val[0];
-				$src=strip_tags($src);
-				
+				$data = true;
+				$src = static::exec($tpls, $data, $key);
+				$tpls[$key] = array(); //Иначе два раза применится
 				$text=static::load($src);
 				$tpls2=static::make(array($text));
 
@@ -266,8 +266,6 @@ class Template {
 				$tpls[$tplempty] = array();
 			}//Пустой шаблон добавляется когда вообще ничего нет
 			//$res=static::parseEmptyTpls($tpls);
-			static::includes($tpls);
-			
 			
 			return $tpls;
 		}, $args);

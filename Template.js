@@ -115,7 +115,7 @@ infra.template={
 	},
 	parse:function(url,data,tplroot,dataroot,tplempty){
 		var tpls=this.make(url,tplempty);
-
+		this.includes(tpls, data, dataroot);
 		var text=this.exec(tpls,data,tplroot,dataroot);
 		return text;
 	},
@@ -136,20 +136,19 @@ infra.template={
 		}
 		return temp;
 	},
-	includes: function (tpls)
+	includes: function (tpls, data, dataroot)
 	{
 		var find={};
 		for(var key in tpls) {
 			var val=tpls[key];
-			if (val.length!=1) {
-				continue;
-			}
+			if (val.length<1) continue;
 
 			if (key.charAt(key.length-1) == ':') {
-				tpls[key]=[];
+				var src = Template.exec(tpls, data, key, dataroot);
+				tpls[key] = [];
 
-				var src=val[0];
-				src=src.replace(/<\/?[^>]+>/gi, '');
+				//var src=val[0];
+				//src=src.replace(/<\/?[^>]+>/gi, '');
 				var tpls2=this.make(src);
 
 				key=key.slice(0, -1)+'.';
@@ -267,9 +266,6 @@ infra.template={
 		for(some in tpls)break;
 		if(!some)tpls[tplempty]=[];//Пустой шаблон добавляется когда вообще ничего нет
 		//var res=this.parseEmptyTpls(tpls);//[{root:[]}, [{some:[]}], [{asdf:[]}]]
-
-
-		this.includes(tpls);
 		stor.cache[url.toString()]=tpls;
 
 
