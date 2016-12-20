@@ -172,7 +172,7 @@ class Template {
 		return $text;
 	}
 	
-	public static function includes($tpls)
+	public static function includes($tpls, $data, $dataroot)
 	{
 		$newtpls = array();	
 		$find = array();
@@ -186,8 +186,8 @@ class Template {
 				$src = static::exec($tpls, $data, $key);
 				$newtpls[$key] = array(); //Иначе два раза применится
 				$text=static::load($src);
-				$tpls2=static::make(array($text));
-
+				$tpls2 = static::make(array($text));
+				$tpls2 = static::includes($tpls2, $data, $dataroot);
 				$key=mb_substr($key, 0, -1);
 				$key.='.';
 				$find[$key]=$tpls2;

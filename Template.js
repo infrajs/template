@@ -152,6 +152,7 @@ infra.template={
 				//var src=val[0];
 				//src=src.replace(/<\/?[^>]+>/gi, '');
 				var tpls2=this.make(src);
+				tpls2 = this.includes(tpls2, data, dataroot);
 
 				key=key.slice(0, -1)+'.';
 				find[key]=tpls2;
