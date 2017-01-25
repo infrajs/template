@@ -146,7 +146,7 @@ class Template {
 					'val'=>array())
 			*/
 			//
-			if (@$exp[0] == '{' && @$exp[strlen($exp) - 1] == '}') {
+			if (isset($exp[0]) && $exp[0] == '{' && isset($exp[strlen($exp) - 1]) && $exp[strlen($exp) - 1] == '}') {
 				$group[$i] = $exp;
 				continue;
 			}
@@ -356,7 +356,7 @@ class Template {
 			if (is_string($v) || is_int($v)) {
 				//name
 				$ar[] = $v;
-			} elseif (@is_array($v) && @is_array($v[0]) && @is_string($v[0]['orig'])) {
+			} elseif (is_array($v) && isset($v[0]) && is_array($v[0]) && isset($v[0]['orig']) && is_string($v[0]['orig'])) {
 				//name[name]  [name,[{}],name]
 
 				$ar[] = static::getValue($conf, $var[$i][0]);
@@ -422,9 +422,9 @@ class Template {
 
 			$p = Sequence::right($p);
 
-			if (@(string) $p[sizeof($p) - 1] == '~key') {
+			if (isset($p[sizeof($p) - 1]) && (string) $p[sizeof($p) - 1] === '~key') {
 				$value = $conf['dataroot'][sizeof($conf['dataroot']) - 1];
-				if (!@static::$scope['kinsert']) {
+				if (empty(static::$scope['kinsert'])) {
 					static::$scope['kinsert'] = array();
 				}
 				$n = sizeof(static::$scope['kinsert']);
@@ -499,13 +499,13 @@ class Template {
 	{
 		
 		//Приходит var начиная от запятых в $d
-		if (@$d['fn']) {
+		if (!empty($d['fn'])) {
 			$func = static::getValue($conf, $d['fn']);
 			if (is_callable($func)) {
 				$param = array();
 				for ($i = 0, $l = sizeof($d['var']); $i < $l; ++$i) {
 					//Количество переменных
-					if (static::bool(@$d['var'][$i]['orig'])) {
+					if (isset($d['var'][$i]['orig']) && static::bool($d['var'][$i]['orig'])) {
 						$v = static::getValue($conf, $d['var'][$i], $term);
 						$param[] = $v;
 					} elseif ($d['var']) {
@@ -532,8 +532,8 @@ class Template {
 	public static function getOnlyVar(&$conf, &$d, $term, $i = 0)
 	{
 		
-		if (@is_array($d['tpl'])) { //{asdf():tpl}
-			$ts = array($d['tpl'],$conf['tpls']);
+		if (isset($d['tpl']) && is_array($d['tpl'])) { //{asdf():tpl}
+			$ts = array($d['tpl'], $conf['tpls']);
 			
 			$tpl = static::exec($ts, $conf['data'], 'root', $conf['dataroot']);
 
@@ -581,7 +581,7 @@ class Template {
 			return $d;
 		}
 
-		if (@$d['cond'] && !isset($d['term'])) {
+		if (!empty($d['cond']) && !isset($d['term'])) {
 			$a = static::getValue($conf, $d['a'], false);
 			$b = static::getValue($conf, $d['b'], false);
 			if ($d['cond'] == '=') {
@@ -636,10 +636,8 @@ class Template {
 		foreach ($res as $subtpl => $v) {
 			//Удаляется последний символ в предыдущем подшаблонe
 			$t = sizeof($res[$subtpl]) - 1;
-			$str = @$res[$subtpl][$t];
-			if (!is_string($str)) {
-				continue;
-			}
+			$str = isset($res[$subtpl][$t]) ? $res[$subtpl][$t] : null;
+			if (!is_string($str)) continue;
 			++$itn;
 
 			$str = $res[$subtpl][$t];
@@ -676,7 +674,7 @@ class Template {
 				--$start;
 				if (!$start) {
 					$k = $fn.'('.$fnexp.')';
-					$insnum = @static::$replacement_ind[$k];
+					$insnum = isset(static::$replacement_ind[$k]) ? static::$replacement_ind[$k] : null;
 					if (is_null($insnum)) {
 						$insnum = sizeof(static::$replacement);
 						static::$replacement_ind[$k] = $insnum;
