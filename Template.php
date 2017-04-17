@@ -914,7 +914,7 @@ class Template {
 					//echo $tpl;
 					$r = array();
 					$r['orig'] = $var;
-					$r['multi'] = ($tpl[0] === ':');
+					$r['multi'] = ($tpl != '' && $tpl[0] === ':');
 					if ($str) {
 						$res = array_merge($res, Sequence::right($str));
 					}
