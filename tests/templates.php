@@ -58,7 +58,7 @@
 				continue;
 			}
 
-			if (@is_null($t['data'])) {
+			if (!isset($t['datea'])||is_null($t['data'])) {
 				$data = array();
 			} else {
 				$data = $t['data'];
