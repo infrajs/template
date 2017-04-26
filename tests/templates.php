@@ -44,7 +44,7 @@
 			echo '</td><td>';
 			echo json_encode($data,JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 			echo '</td><td>';
-			echo @$t['com'];
+			if (isset($t['com'])) echo $t['com'];
 			echo '</td><tr>';
 		}
 		echo '</table>';
