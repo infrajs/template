@@ -52,13 +52,14 @@
 		$ans = array();
 		$ans['title'] = 'Тест шаблонизатора. Без 3х известных ошибок.';
 		$ans['class'] = 'bg-warning';
+		$ans['result'] = 0;
 
 		foreach ($tpls as $key => $t) {
 			if ($key < 3) {
 				continue;
 			}
 
-			if (!isset($t['datea'])||is_null($t['data'])) {
+			if (!isset($t['data'])||is_null($t['data'])) {
 				$data = array();
 			} else {
 				$data = $t['data'];
@@ -72,8 +73,8 @@
 				return;
 			}
 		};
-		$ans['msg']='Всё ок';
-		$ans['result']=1;
+		$ans['msg'] = 'Всё ок';
+		$ans['result'] = 1;
 		echo json_encode($ans, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 		return;
 	}
