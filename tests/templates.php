@@ -23,7 +23,7 @@
 			echo '</td><td>';
 			echo htmlentities($t['tpl']);
 			echo '</td><td nowrap="1">';
-			if (@is_null($t['data'])) {
+			if (!isset($t['data']) || is_null($t['data'])) {
 				$data = array();
 			} else {
 				$data = $t['data'];
