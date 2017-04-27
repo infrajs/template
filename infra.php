@@ -65,9 +65,8 @@ Sequence::set(Template::$scope, array('location', 'pathname'), $pathname);
 
 
 
-if (class_exists('Template')) {
-	Template::$scope['Path'] = array();
-	Template::$scope['Path']['encode'] = function ($str) {
-		return Path::encode($str);
-	};
-}
+
+Template::$scope['Path'] = array();
+Template::$scope['Path']['encode'] = function ($str) {
+	return Path::encode($str);
+};
