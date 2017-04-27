@@ -1294,10 +1294,7 @@ Template::$scope = array(
 	}
 );
 
-Template::$scope['Path'] = array();
-Template::$scope['Path']['encode'] = function ($str) {
-	return Path::encode($str);
-};
+
 Template::$fs = array (
 	"load" => function($src){
 		return file_get_contents($src);

@@ -4,7 +4,9 @@ use infrajs\load\Load;
 use infrajs\event\Event;
 use infrajs\config\Config;
 use infrajs\sequence\Sequence;
+use infrajs\template\Template;
 use infrajs\path\Path;
+use infrajs\router\Router;
 use infrajs\path\URN;
 use infrajs\view\view;
 
@@ -22,9 +24,8 @@ $fn2 = function ($name=null) {
 };
 Sequence::set(Template::$scope, array('infra', 'config'), $fn2);
 Sequence::set(Template::$scope, array('Config', 'get'), $fn2);
-Event::one('Controller.oninit', function () {
-	Template::$scope['~conf'] = Config::get();
-});
+
+if (Router::$main) Template::$scope['~conf'] = Config::get();
 
 $fn3 = function () {
 	return View::getPath();
@@ -62,3 +63,11 @@ $pathname = $p[0];
 Sequence::set(Template::$scope, array('location', 'host'), $host);
 Sequence::set(Template::$scope, array('location', 'pathname'), $pathname);
 
+
+
+if (class_exists('Template')) {
+	Template::$scope['Path'] = array();
+	Template::$scope['Path']['encode'] = function ($str) {
+		return Path::encode($str);
+	};
+}

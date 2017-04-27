@@ -1149,9 +1149,3 @@ infra.template={
 	}
 }
 window.Template = infra.template;
-
-Template.scope['Path'] = {};
-Template.scope['Path']['encode'] = function (str) {
-	return Path.encode(str);
-}
-	/**/
