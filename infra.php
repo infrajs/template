@@ -6,6 +6,7 @@ use infrajs\config\Config;
 use infrajs\sequence\Sequence;
 use infrajs\template\Template;
 use infrajs\path\Path;
+use infrajs\access\Access;
 use infrajs\router\Router;
 use infrajs\path\URN;
 use infrajs\view\view;
@@ -69,4 +70,9 @@ Sequence::set(Template::$scope, array('location', 'pathname'), $pathname);
 Template::$scope['Path'] = array();
 Template::$scope['Path']['encode'] = function ($str) {
 	return Path::encode($str);
+};
+
+Template::$scope['Access'] = array();
+Template::$scope['Access']['adminTime'] = function () {
+	return Access::adminTime();
 };
