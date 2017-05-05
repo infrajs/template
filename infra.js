@@ -14,3 +14,8 @@ Template.scope['Path'] = {};
 Template.scope['Path']['encode'] = function (str) {
 	return Path.encode(str);
 }
+
+Template.scope['Access'] = {};
+Template.scope['Access']['adminTime'] = function () {
+	return Access.adminTime();
+};
