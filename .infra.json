@@ -1,7 +1,7 @@
 {
 	"pub":["root"],
 	"conf":"infrajs\\template\\Template",
-	"dependencies":["event","sequence"],
+	"dependencies":["config","event","sequence"],
 	"require":"infra.php",
 	"js":["Template.js","infra.js"],
 	"tester":"tests/"
