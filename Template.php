@@ -443,6 +443,7 @@ class Template {
 						$root = $p;
 					}
 				}
+
 				if (is_null($value)) {
 					$value = Sequence::get($conf['data'], $right);//Абсолютный путь
 					if (!is_null($value)) {
@@ -456,7 +457,7 @@ class Template {
 						$root = $right;
 					}
 				}
-
+				
 				if (is_object($value) && method_exists($value, 'toString')) {
 					$value = $value->toString();
 				}
@@ -467,6 +468,7 @@ class Template {
 			}
 		}
 
+		
 		return array(
 			'root' => $root,//Путь от корня
 			'value' => $value,
@@ -497,7 +499,7 @@ class Template {
 	}
 	public static function getCommaVar(&$conf, &$d, $term = false)
 	{
-		
+			
 		//Приходит var начиная от запятых в $d
 		if (!empty($d['fn'])) {
 			$func = static::getValue($conf, $d['fn']);
@@ -515,7 +517,6 @@ class Template {
 				}
 				//$param[]=&$conf;
 				static::$moment = $conf;
-
 				return call_user_func_array($func, $param);
 			} else {
 				return;//что возвращается когда нет функции которую нужно вызвать
@@ -576,7 +577,6 @@ class Template {
 	}
 	public static function getValue(&$conf, &$d, $term = false)
 	{
-		
 		if (is_string($d)) {
 			return $d;
 		}
@@ -596,9 +596,7 @@ class Template {
 				return false;
 			}
 		} elseif (isset($d['var'])) {
-
 			$v = static::getCommaVar($conf, $d, $term);
-
 			return $v;
 		} elseif ($d['term']) {
 			$var = static::getValue($conf, $d['term'], true);
