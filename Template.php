@@ -1094,6 +1094,11 @@ Template::$scope = array(
 	'~upper' => function ($str) {
 		return mb_strtoupper($str);
 	},
+	'~print' => function ($data) {
+		$tpl = "{root:}<pre>{:echo}</pre>  {echo:}{::row}{row:}{~key}: {~typeof(.)=:object?:obj?:str}{obj:}<div style='margin-left:50px'>{:echo}</div>{str:}{.}<br>";
+		$res = Template::parse([$tpl], $data);
+		return $res;
+	},
 	'~parse' => function ($str = '') {
 		$conf = Template::$moment;
 		if (!$str) {

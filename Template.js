@@ -965,7 +965,11 @@ infra.template={
 			if(!str)return '';
 			return str.toUpperCase();
 		},
-		
+		'~print': function (data) {
+			var tpl = "{root:}<pre>{:echo}</pre>  {echo:}{::row}{row:}{~key}: {~typeof(.)=:object?:obj?:str}{obj:}<div style='margin-left:50px'>{:echo}</div>{str:}{.}<br>";
+			var res = Template.parse([tpl], data);
+			return res;
+		},
 		'~indexOf':function(str,v){
 			str=str.toLowerCase();
 			v=v.toLowerCase();
