@@ -391,15 +391,13 @@ infra.template={
 			var p=infra.seq.right(conf['dataroot'].concat(right));
 
 			var scope=infra.template.scope;
-			if(p[p.length-1]=='$key'){
-				value=conf['dataroot'][conf['dataroot'].length-1];
-
-				if(!scope['kinsert'])scope['kinsert']=[];
-				var n=scope['kinsert'].length;
-				scope['kinsert'][n]=value;
-				root=['kinsert',''+n];
-			}else if(p[p.length-1]=='~key'){
-				value=conf['dataroot'][conf['dataroot'].length-1];
+			if (p[p.length-1] == '~key') {
+				if (conf['dataroot'].length < 1) {
+					value = null;
+				} else {
+					value = conf['dataroot'][conf['dataroot'].length-1];
+				}
+				
 
 				if(!scope['kinsert'])scope['kinsert']=[];
 				var n=scope['kinsert'].length;
@@ -966,7 +964,7 @@ infra.template={
 			return str.toUpperCase();
 		},
 		'~print': function (data) {
-			var tpl = "{root:}<pre>{:echo}</pre>  {echo:}{::row}{row:}{~key}: {~typeof(.)=:object?:obj?:str}{obj:}<div style='margin-left:50px'>{:echo}</div>{str:}{.}<br>";
+			var tpl = "{root:}<pre>{:row}</pre>  {echo:}{::row}{row:}{~key}: {~typeof(.)=:object?:obj?:str}{obj:}<div style='margin-left:50px'>{:echo}</div>{str:}{.}<br>";
 			var res = Template.parse([tpl], data);
 			return res;
 		},

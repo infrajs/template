@@ -423,13 +423,18 @@ class Template {
 			$p = Sequence::right($p);
 
 			if (isset($p[sizeof($p) - 1]) && (string) $p[sizeof($p) - 1] === '~key') {
-				$value = $conf['dataroot'][sizeof($conf['dataroot']) - 1];
+				if (sizeof($conf['dataroot']) < 1) {
+					$value = null;
+				} else {
+					$value = $conf['dataroot'][sizeof($conf['dataroot']) - 1];
+				}
 				if (empty(static::$scope['kinsert'])) {
 					static::$scope['kinsert'] = array();
 				}
 				$n = sizeof(static::$scope['kinsert']);
 				static::$scope['kinsert'][$n] = $value;
 				$root = array('kinsert',(string) $n);
+				
 			} else {
 				$value = Sequence::get($conf['data'], $p);//Относительный путь от данных
 
@@ -1095,7 +1100,7 @@ Template::$scope = array(
 		return mb_strtoupper($str);
 	},
 	'~print' => function ($data) {
-		$tpl = "{root:}<pre>{:echo}</pre>  {echo:}{::row}{row:}{~key}: {~typeof(.)=:object?:obj?:str}{obj:}<div style='margin-left:50px'>{:echo}</div>{str:}{.}<br>";
+		$tpl = "{root:}<pre>{~typeof(.)=:object?:echo?:str}</pre>  {echo:}{::row}{row:}{~key}: {~typeof(.)=:object?:obj?:str}{obj:}<div style='margin-left:50px'>{:echo}</div>{str:}{.}<br>";
 		$res = Template::parse([$tpl], $data);
 		return $res;
 	},
