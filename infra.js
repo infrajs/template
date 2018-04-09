@@ -39,3 +39,6 @@ Template.scope['Access'] = {};
 Template.scope['Access']['adminTime'] = function () {
 	return Access.adminTime();
 };
+Template.scope['Access']['getDebugTime'] = function () {
+	return Access.getDebugTime();
+};
