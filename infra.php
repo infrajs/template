@@ -23,10 +23,10 @@ Template::$fs['load'] = function ($src) {
 $fn2 = function ($name=null) {
 	return $conf = Config::pub($name);
 };
-Sequence::set(Template::$scope, array('infra', 'config'), $fn2);
+Sequence::set(Template::$scope, array('infra', 'config'), $fn2);//deprecated
 Sequence::set(Template::$scope, array('Config', 'get'), $fn2);
 
-if (Router::$main) Template::$scope['~conf'] = Config::get();
+if (Router::$main) Template::$scope['~conf'] = Config::get();//deprecated
 
 
 

@@ -3,7 +3,7 @@ Template.scope.infra.config=function(name){
 	return Config.get(name);
 }
 
-Template.scope['~conf'] = Config.get();
+Template.scope['~conf'] = Config.get();//deprecated
 
 Template.scope.Config = {};
 Template.scope.Config.get=function(name){
