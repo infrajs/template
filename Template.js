@@ -906,9 +906,11 @@ infra.template={
 			return obj;
 		},
 		'~encode':function(str){
+			if(!str) return str;
 			return encodeURIComponent(str);
 		},
 		'~decode':function(str){
+			if(!str) return str;
 			return decodeURIComponent(str);
 		},
 		'$length':function(obj){

@@ -1057,10 +1057,12 @@ Template::$scope = array(
 	
 	'~encode' => function($str){
 		if (!is_string($str)) return $str;
+		if (!$str) return $str;
 		return urlencode($str);
 	},
 	'~decode' => function ($str) {
 		if (!is_string($str)) return $str;
+		if (!$str) return $str;
 		return urldecode($str);
 	},
 	'~length' => function ($obj = null) {
