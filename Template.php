@@ -254,22 +254,22 @@ class Template {
 	}
 	public static function &make($url, $tplempty = 'root')
 	{
-		$args=array($url, $tplempty);
+		$args = array($url, $tplempty);
 		
-		$tpls=Once::exec('Infrajs::Template::make', function ($url, $tplempty) {
+		$tpls = Once::func( function ($url, $tplempty) {
 
 			if (is_array($url)) $template=$url[0];
 			else $template=static::load($url);
 
+					
 			$ar = static::prepare($template);
 			static::analysis($ar);
 			$tpls = static::getTpls($ar, $tplempty);
-			
+		
 			if (!$tpls) {
 				$tpls[$tplempty] = array();
 			}//Пустой шаблон добавляется когда вообще ничего нет
 			//$res=static::parseEmptyTpls($tpls);
-			
 			return $tpls;
 		}, $args);
 
