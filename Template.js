@@ -964,7 +964,7 @@ infra.template = {
             return str.toUpperCase();
         },
         '~print': function(data) {
-            var tpl = "{root:}<pre>{:row}</pre>  {echo:}{::row}{row:}{~key}: {~typeof(.)=:object?:obj?:str}{obj:}<div style='margin-left:50px'>{:echo}</div>{str:}{.}<br>";
+            var tpl = "{root:}<pre>{~typeof(.)=:object?:echo?:str}</pre>{echo:}{::row}{row:}{~key}: {~typeof(.)=:object?:obj?:str}{obj:}<div style='margin-left:50px'>{:echo}</div>{str:}{~typeof(.)=:boolean?:bool?.}<br>{bool:}{.?:true?:false}";
             var res = Template.parse([tpl], data);
             return res;
         },

@@ -1102,7 +1102,7 @@ Template::$scope = array(
 		return mb_strtoupper($str);
 	},
 	'~print' => function ($data) {
-		$tpl = "{root:}<pre>{~typeof(.)=:object?:echo?:str}</pre>  {echo:}{::row}{row:}{~key}: {~typeof(.)=:object?:obj?:str}{obj:}<div style='margin-left:50px'>{:echo}</div>{str:}{.}<br>";
+		$tpl = "{root:}<pre>{~typeof(.)=:object?:echo?:str}</pre>{echo:}{::row}{row:}{~key}: {~typeof(.)=:object?:obj?:str}{obj:}<div style='margin-left:50px'>{:echo}</div>{str:}{~typeof(.)=:boolean?:bool?.}<br>{bool:}{.?:true?:false}";
 		$res = Template::parse([$tpl], $data);
 		return $res;
 	},
