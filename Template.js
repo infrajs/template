@@ -877,6 +877,9 @@ infra.template = {
         '$false': false,
         '~true': true,
         '~false': false,
+        '~json': function (val) {
+            return JSON.stringify(val);
+        },
         '~years': function(start) {
             y = new Date().getFullYear();
             if (y == start) return y;

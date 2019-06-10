@@ -991,6 +991,9 @@ Template::$scope = array(
 	},
 	'~true' => true,
 	'~false' => false,
+	'~json' => function ($val) {
+		return json_encode($val,true);
+	},
 	'~years' => function ($start) {
 		$y = date('Y');
 		if ($y == $start) {
