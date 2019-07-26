@@ -976,9 +976,14 @@ infra.template = {
             v = v.toLowerCase();
             return str.indexOf(v);
         },
+        '~dataroot': function (){
+            //return Template.moment.dataroot;
+            return Sequence.short(Template.moment.dataroot);
+        },
         '~parse': function(str) {
             var conf = Template.moment;
             if (!str) return '';
+            if (typeof(str) == 'object' && !str[0]) return '';
             var res = Template.parse(str, conf.data, 'root', conf['dataroot'], 'root'); //(url,data,tplroot,dataroot,tplempty){
             return res;
         },

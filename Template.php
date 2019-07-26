@@ -1109,9 +1109,14 @@ Template::$scope = array(
 		$res = Template::parse([$tpl], $data);
 		return $res;
 	},
+	 '~dataroot' => function (){
+        //return Template.moment.dataroot;
+        return Sequence::short(Template::$moment['dataroot']);
+    },
 	'~parse' => function ($str = '') {
 		$conf = Template::$moment;
 		if (!$str) return '';
+		if (is_array($str) && !$str[0]) return '';
 		$res = Template::parse($str, $conf['data'], 'root', $conf['dataroot'], 'root');//(url,data,tplroot,dataroot,tplempty){
 		return $res;
 	},
