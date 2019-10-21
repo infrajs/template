@@ -1003,6 +1003,60 @@ infra.template = {
                 return five;
             }
         },
+        '~before': function (num) {
+            if (!num) return false;
+            var conf = Template.moment;
+            var dataroot = conf['dataroot'].concat();
+            var key = dataroot.pop();
+
+            var obj = Sequence.get(conf['data'], dataroot);
+            if (!obj) return true;
+
+            var n = 0;
+            if (obj.constructor === Array) {
+                for(var k = 0, l = obj.length; k < l; k++) {
+                    if (n == num) return false;
+                    n++;
+                    if (k == key) return true;
+                }
+            } else {
+                for (var k in obj) {
+                    if (n == num) return false;
+                    n++;
+                    if (k == key) return true;
+                }
+            }
+            return true;
+        },
+        '~cut': function (len, str) {
+            if (str.length < len) return str;
+            else return str.substr(0,len)+'...';
+        },
+        '~after': function (num) {
+            if (!num) return true;
+            var conf = Template.moment;
+            var dataroot = conf['dataroot'].concat();
+            var key = dataroot.pop();
+
+            var obj = Sequence.get(conf['data'], dataroot);
+            if (!obj) return false;
+
+            var n = 0;
+            if (obj.constructor === Array) {
+                for(var k = 0, l = obj.length; k < l; k++) {
+                    if (n == num) return true;
+                    n++;
+                    if (k == key) return false;
+                }
+            } else {
+                for (var k in obj) {
+                    if (n == num) return true;
+                    n++;
+                    if (k == key) return false;
+                }
+            }
+            return false;
+        },
         '~leftOver': function(first, second) { //Кратное
             first = Number(first);
             second = Number(second);
@@ -1027,7 +1081,7 @@ infra.template = {
             return n;
         },
         '~even': function() {
-            var conf = infra.template.moment;
+            var conf = Template.moment;
             var dataroot = conf['dataroot'].concat();
             var key = dataroot.pop();
             var obj = infra.seq.get(conf['data'], dataroot);

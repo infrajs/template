@@ -1206,6 +1206,46 @@ Template::$scope = array(
 
 		return $n;
 	},
+	'~before' => function ($num) {
+		if (!$num) return false;
+		$conf = Template::$moment;
+		$dataroot = $conf['dataroot'];
+		$key = array_pop($dataroot);
+		$obj = &Sequence::get($conf['data'], $dataroot);
+		if (!$obj) return true;
+
+		$n = 0;
+		foreach ($obj as $k => $v) {
+			if ($n == $num) return false;
+			$n++;
+			if ($k == $key) return true;
+		}
+		return true;
+	},
+	'~cut' => function ($len, $str) {
+        if (mb_strlen($str) < $len) {
+        	return $str;
+        } else {
+        	$str = mb_substr($str, 0, $len);
+        	return $str.'...';
+        }
+    },
+	'~after' => function ($num) {
+		if (!$num) return true;
+		$conf = Template::$moment;
+		$dataroot = $conf['dataroot'];
+		$key = array_pop($dataroot);
+		$obj = &Sequence::get($conf['data'], $dataroot);
+		if (!$obj) return false;
+
+		$n = 0;
+		foreach ($obj as $k => $v) {
+			if ($n == $num) return true;
+			$n++;
+			if ($k == $key) return false;
+		}
+		return false;
+	},
 	'~leftOver' => function ($first, $second) {
 		//Кратное
 		$first = (int) $first;
