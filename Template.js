@@ -1029,7 +1029,7 @@ infra.template = {
             return true;
         },
         '~cut': function (len, str) {
-            if (str.length < len) return str;
+            if (!str || str.length < len) return str;
             else return str.substr(0,len)+'...';
         },
         '~after': function (num) {

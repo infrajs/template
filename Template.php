@@ -1223,7 +1223,7 @@ Template::$scope = array(
 		return true;
 	},
 	'~cut' => function ($len, $str) {
-        if (mb_strlen($str) < $len) {
+        if (!$str || mb_strlen($str) < $len) {
         	return $str;
         } else {
         	$str = mb_substr($str, 0, $len);
