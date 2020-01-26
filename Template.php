@@ -572,8 +572,12 @@ class Template {
 				$r = null;
 			}
 
-			$v = $r['value'];
-			if (!$term && is_null($v)) {
+			if(!is_null($r)) {
+				$v = $r['value'];
+				if (!$term && is_null($v)) {
+					$v = '';
+				}
+			} else {
 				$v = '';
 			}
 		}
