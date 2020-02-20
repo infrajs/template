@@ -434,7 +434,6 @@ class Template {
 				$n = sizeof(static::$scope['kinsert']);
 				static::$scope['kinsert'][$n] = $value;
 				$root = array('kinsert',(string) $n);
-				
 			} else {
 				$value = Sequence::get($conf['data'], $p);//Относительный путь от данных
 
@@ -1135,6 +1134,10 @@ Template::$scope = array(
 		}
 
 		return $r;
+	},
+	'~root' => function () {
+		$conf = Template::$moment;
+		return $conf['data'];
 	},
 	'~last' => function () {
 		$conf = Template::$moment;
