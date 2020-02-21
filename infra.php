@@ -29,6 +29,11 @@ Sequence::set(Template::$scope, array('Config', 'get'), $fn2);
 if (Router::$main) Template::$scope['~conf'] = Config::get();//deprecated
 
 
+$fndata = function ($src) {
+	return Load::loadJSON($src);
+};
+Sequence::set(Template::$scope, array('~data'), $fndata);
+
 
 $fn3 = function () {
 	return View::getPath();

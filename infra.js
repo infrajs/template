@@ -1,4 +1,12 @@
 
+
+
+
+Template.scope['~data'] = function (src) {
+	return Load.loadJSON(src);
+}
+
+
 Template.scope.infra.config=function(name){
 	return Config.get(name);
 }

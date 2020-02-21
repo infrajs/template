@@ -188,13 +188,11 @@ class Template {
 				$text=static::load($src);
 				$tpls2 = static::make(array($text));
 				$tpls2 = static::includes($tpls2, $data, $dataroot);
-				$key=mb_substr($key, 0, -1);
-				$key.='.';
+				$key = mb_substr($key, 0, -1);
+				if ($key) $key.='.';
 				$find[$key]=$tpls2;
 			}
 		}
-
-
 
 		foreach ($find as $name => &$t) {
 			foreach ($t as $k => &$subtpl) {

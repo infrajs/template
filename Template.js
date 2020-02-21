@@ -152,16 +152,14 @@ infra.template = {
 				//src=src.replace(/<\/?[^>]+>/gi, '');
 				var tpls2 = this.make(src);
 				tpls2 = this.includes(tpls2, data, dataroot);
-
-				key = key.slice(0, -1) + '.';
+				if (key.length>1) key = key.slice(0, -1) + '.';
+				else key = '';
 				find[key] = tpls2;
 			}
 		}
 
 		for (var name in find) {
 			var t = find[name];
-
-
 			for (var k in t) {
 				var subtpl = t[k];
 				k = name + k;
