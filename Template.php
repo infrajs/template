@@ -1307,6 +1307,17 @@ Template::$scope = array(
 
 		return $n;
 	},
+	'~split' => function ($name, $str, $sn, $sv) {
+		$ar = explode(',', $str);
+		for ($i = 0, $l = sizeof($ar); $i < $l; $i++) {
+			$val = trim($ar[$i]);
+			$ar[$i] = [];
+			$ar[$i][$name] = $val;
+			$ar[$i][$sn] = $sv;
+			
+		}
+		return $ar;
+	},
 	'~cost' => function ($cost, $text = false) {
 
 		$cost = (string) $cost;

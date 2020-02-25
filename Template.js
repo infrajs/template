@@ -1153,6 +1153,16 @@ infra.template = {
 			if (!n && n != 0) n = def;
 			return n;
 		},
+		'~split': function (name, str, sn, sv) {
+			let ar = str.split(',');
+			for (let i = 0, l = ar.length; i < l; i++) {
+				let val = ar[i].trim();
+				ar[i] = [];
+				ar[i][name] = val;
+				ar[i][sn] = sv;
+			}
+			return ar;
+		},
 		'~cost': function(cost, text) {
 
 
