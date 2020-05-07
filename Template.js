@@ -1183,9 +1183,8 @@ infra.template = {
 				if (cop == '00') cop = '';
 
 			}
-
+			let inp = '&nbsp;';
 			if (text) inp = ' ';
-			else inp = '&nbsp;';
 
 			if (cost.length > 4) { //1000
 				var l = cost.length;
