@@ -1,7 +1,6 @@
 
 
 
-
 Template.scope['~data'] = function (src) {
 	return Load.loadJSON(src);
 }
@@ -43,6 +42,7 @@ Template.scope['Path']['encode'] = function (str) {
 	return Path.encode(str);
 }
 
+import {Access} from '/vendor/infrajs/access/Access.js'
 Template.scope['Access'] = {};
 Template.scope['Access']['adminTime'] = function () {
 	return Access.adminTime();
