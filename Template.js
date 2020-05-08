@@ -511,11 +511,11 @@ infra.template = {
 
 		return v;
 	},
-	test: function() {
+	test: function(...args) {
 		infra.unload('-infra/tests/resources/templates.js');
 		infra.require('-infra/tests/resources/templates.js');
 		if (infra.template.test.good) {
-			infra.template.test.apply(this, arguments);
+			infra.template.test.apply(this, args);
 		} else {
 			console.log('Ошибка, загрузки тестов');
 		}
@@ -893,11 +893,10 @@ infra.template = {
 			if (time === true) time = new Date();
 			return phpdate(format, time);
 		},
-		'$obj': function() {
-			return infra.template.scope['~obj'].apply(this, arguments);
+		'$obj': function(...args) {
+			return infra.template.scope['~obj'].apply(this, args);
 		},
-		'~obj': function() { //создаём объект {$obj(name1,val1,name2,val2)}
-			var args = arguments;
+		'~obj': function(...args) { //создаём объект {$obj(name1,val1,name2,val2)}
 			var obj = {};
 			for (var i = 0, l = args.length; i < l; i = i + 2) {
 				obj[args[i]] = args[i + 1];
@@ -929,8 +928,8 @@ infra.template = {
 			if (obj.length != undefined) return obj.length;
 			return 0;
 		},
-		'$inArray': function() {
-			return infra.template.scope['~inArray'].apply(this, arguments);
+		'$inArray': function(...args) {
+			return infra.template.scope['~inArray'].apply(this, args);
 		},
 		'~inArray': function(val, arr) {
 			if (!arr) return false;
@@ -990,7 +989,7 @@ infra.template = {
 			if (count > 20) {
 				var str = count.toString();
 				count = str[str.length - 1];
-				count2 = str[str.length - 2];
+				let count2 = str[str.length - 2];
 				if (count2 == 1) return five; //xxx10-xxx19 (иначе 111-114 некорректно)
 			}
 			if (count == 1) {
@@ -1060,20 +1059,17 @@ infra.template = {
 			second = Number(second);
 			return first % second;
 		},
-		'~sum': function() {
-			var args = arguments;
-			var n = 0;
-			for (i = 0, l = args.length; i < l; i++) n += Number(args[i]);
+		'~sum': function(...args) {
+			let n = 0;
+			for (let i = 0, l = args.length; i < l; i++) n += Number(args[i]);
 			return n;
 		},
-		'~array': function() {
-			var args = arguments;
+		'~array': function(...args) {
 			var ar = [];
 			for (i = 0, l = args.length; i < l; i++) ar.push(args[i]);
 			return ar;
 		},
-		'~multi': function() {
-			var args = arguments;
+		'~multi': function(...args) {
 			var n = 1;
 			for (i = 0, l = args.length; i < l; i++) n *= Number(args[i]);
 			return n;
@@ -1127,8 +1123,7 @@ infra.template = {
 			}
 			return (k === key);
 		},
-		'~random': function() {
-			var args = arguments;
+		'~random': function(...args) {
 			return args[Math.floor(Math.random() * args.length)];
 		},
 		'~first': function() {
@@ -1209,14 +1204,14 @@ infra.template = {
 			'srcinfo': infra.srcinfo,
 			'conf': infra.conf,
 			'view': {
-				getPath: function() {
-					return infra.view.getPath.apply(infra.view, arguments)
+				getPath: function(...args) {
+					return infra.view.getPath.apply(infra.view, args)
 				},
-				getHost: function() {
-					return infra.view.getHost.apply(infra.view, arguments)
+				getHost: function(...args) {
+					return infra.view.getHost.apply(infra.view, args)
 				},
-				getRoot: function() {
-					return infra.view.getRoot.apply(infra.view, arguments)
+				getRoot: function(...args) {
+					return infra.view.getRoot.apply(infra.view, args)
 				}
 			}
 		},
