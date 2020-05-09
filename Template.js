@@ -1066,12 +1066,12 @@ infra.template = {
 		},
 		'~array': function(...args) {
 			var ar = [];
-			for (i = 0, l = args.length; i < l; i++) ar.push(args[i]);
+			for (let i = 0, l = args.length; i < l; i++) ar.push(args[i]);
 			return ar;
 		},
 		'~multi': function(...args) {
 			var n = 1;
-			for (i = 0, l = args.length; i < l; i++) n *= Number(args[i]);
+			for (let i = 0, l = args.length; i < l; i++) n *= Number(args[i]);
 			return n;
 		},
 		'~even': function() {
