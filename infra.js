@@ -1,5 +1,6 @@
-
-
+import { Config } from '/vendor/infrajs/config/Config.js'	
+import { Template } from '/vendor/infrajs/template/Template.js'
+import { Load } from '/vendor/infrajs/load/Load.js'
 
 Template.scope['~data'] = function (src) {
 	return Load.loadJSON(src);

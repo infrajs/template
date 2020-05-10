@@ -1,3 +1,4 @@
+import { Config } from '/vendor/infrajs/config/Config.js'	
 /*
 parse
 	make
@@ -35,7 +36,7 @@ parse
  * Функции берутся в следующем порядке сначало от this в данных потом от корня данных потом в спецколлекции потом в глобальной области
  **/
 
-infra.template = {
+let Template = {
 	store: function(name) {
 		if (!this.store.data) this.store.data = { cache: {} };
 		if (!name) return this.store.data;
@@ -1202,7 +1203,7 @@ infra.template = {
 				"right": infra.seq.right
 			},
 			'srcinfo': infra.srcinfo,
-			'conf': infra.conf,
+			'conf': Config.get(),
 			'view': {
 				getPath: function(...args) {
 					return infra.view.getPath.apply(infra.view, args)
@@ -1218,4 +1219,5 @@ infra.template = {
 		'location': location
 	}
 }
-window.Template = infra.template;
+window.Template = infra.template = Template;
+export {Template}
