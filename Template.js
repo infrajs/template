@@ -1,4 +1,10 @@
-import { Config } from '/vendor/infrajs/config/Config.js'	
+import { Config } from '/vendor/infrajs/config/Config.js'
+import { Seq } from '/vendor/infrajs/sequence/Seq.js'
+import { View } from '/vendor/infrajs/view/View.js'
+import { Path } from '/vendor/infrajs/path/Path.js'
+import { Load } from '/vendor/infrajs/load/Load.js'
+import { Each } from '/vendor/infrajs/each/Each.js'
+import { phpdate } from '/vendor/infrajs/phpdate/phpdate.js'
 /*
 parse
 	make
@@ -37,13 +43,13 @@ parse
  **/
 
 let Template = {
-	store: function(name) {
+	store: function (name) {
 		if (!this.store.data) this.store.data = { cache: {} };
 		if (!name) return this.store.data;
 		if (!this.store.data[name]) this.store.data[name] = {};
 		return this.store.data[name];
 	},
-	prepare: function(template) {
+	prepare: function (template) {
 		var start = false;
 		var breaks = 0;
 		var res = [];
@@ -85,7 +91,7 @@ let Template = {
 		if (exp) res[res.length - 1] += '{' + exp;
 		return res;
 	},
-	analysis: function(group) {
+	analysis: function (group) {
 		/*
 		 *  as.df(sdf[as.d()])
 		 *  as.df   (  sdf[	as.d  ()	]  )
@@ -94,8 +100,8 @@ let Template = {
 		 *
 		 * 'as.df',[ 'sdf[as.d',[] ],']'
 		 * */
-		infra.forr(group, function(exp, i) {
-			if (typeof(exp) == 'string') return;
+		infra.forr(group, function (exp, i) {
+			if (typeof (exp) == 'string') return;
 			else exp = exp[0];
 
 
@@ -103,7 +109,7 @@ let Template = {
 				group[i] = exp;
 				return;
 			}
-			group[i] = infra.template.parseexp(exp);
+			group[i] = Template.parseexp(exp);
 			/*
 			 * a[b(c)]()
 			 * a[(b(c))]()
@@ -114,14 +120,14 @@ let Template = {
 
 		});
 	},
-	parse: function(url, data, tplroot, dataroot, tplempty) {
-		var tpls = this.make(url, tplempty);
-		tpls = this.includes(tpls, data, dataroot);
-		var text = this.exec(tpls, data, tplroot, dataroot);
+	parse: function (url, data, tplroot, dataroot, tplempty) {
+		var tpls = this.make(url, tplempty)
+		tpls = this.includes(tpls, data, dataroot)
+		var text = this.exec(tpls, data, tplroot, dataroot)
 		return text;
 	},
-	clone: function(obj) {
-		if (obj === null || typeof(obj) != 'object') {
+	clone: function (obj) {
+		if (obj === null || typeof (obj) != 'object') {
 			return obj;
 		}
 		if (obj.constructor === Array) {
@@ -137,7 +143,7 @@ let Template = {
 		}
 		return temp;
 	},
-	includes: function(tpls, data, dataroot) {
+	includes: function (tpls, data, dataroot) {
 		var newtpls = {};
 		var find = {};
 		for (var key in tpls) {
@@ -153,7 +159,7 @@ let Template = {
 				//src=src.replace(/<\/?[^>]+>/gi, '');
 				var tpls2 = this.make(src);
 				tpls2 = this.includes(tpls2, data, dataroot);
-				if (key.length>1) key = key.slice(0, -1) + '.';
+				if (key.length > 1) key = key.slice(0, -1) + '.';
 				else key = '';
 				find[key] = tpls2;
 			}
@@ -170,8 +176,8 @@ let Template = {
 				subtpl = this.clone(subtpl);
 				for (var kk in subtpl) {
 					var exp = subtpl[kk];
-					if (typeof(exp) != 'string') {
-						this.runExpTpl(exp, function(exp) {
+					if (typeof (exp) != 'string') {
+						this.runExpTpl(exp, function (exp) {
 							exp['tpl']['root'].unshift(name);
 						});
 					}
@@ -185,7 +191,7 @@ let Template = {
 	/**
 	 * Var это {(a[:b](c)?d)?e} - a,b,c,d,e 5 интераций, кроме a[:b]
 	 */
-	runExpTpl: function(exp, call) {
+	runExpTpl: function (exp, call) {
 		if (exp['term']) {
 			this.runExpTpl(exp['term'], call);
 			this.runExpTpl(exp['yes'], call);
@@ -205,7 +211,7 @@ let Template = {
 						if (br['tpl']) {
 							call(br);
 						}
-						if (typeof(br) == 'object') {
+						if (typeof (br) == 'object') {
 							this.runExpTpl(br, call);
 						}
 					}
@@ -225,9 +231,9 @@ let Template = {
 	parseEmptyTpls:function(tpls){
 		var res=[];
 		infra.foro(tpls,function(t){
-			infra.template.runTpls(t,function(tpl){
+			Template.runTpls(t,function(tpl){
 				if(!tpls[tpl]){
-					res.unshift(infra.template.make([tpl],tpl));
+					res.unshift(Template.make([tpl],tpl));
 				}
 			});
 		});
@@ -241,7 +247,7 @@ let Template = {
 			for(var i=0,l=tpls[sub].length;i<l;i++){
 				if(!tpls[sub].hasOwnProperty(i))continue;
 				if(tpls[sub][i].tpl&&!tpls[tpls[sub][i].tpl]){//Нашли используемый подшаблон, которого нет
-					res.unshift(infra.template.make([tpls[sub][i].tpl],tpls[sub][i].tpl));
+					res.unshift(Template.make([tpls[sub][i].tpl],tpls[sub][i].tpl));
 					//При объединении шаблонов, добавляемые подшаблоны будут с более высоким приоритетом чем те что уже есть, так что не боимся что будет заменён подшаблон, который далее будет добавлен первым как дополнительный
 					//Но если дополнительные подшаблоны добавятся как шаблоны по умолчанию, в конец списка, то до таких подшаблонов дело никогда не дойдёт
 				}
@@ -250,12 +256,12 @@ let Template = {
 		res.unshift(tpls);
 		return res;
 	},*/
-	make: function(url, tplempty) { //tplempty - имя для подшаблона который будет пустым в документе начнётся без имени
+	make: function (url, tplempty) { //tplempty - имя для подшаблона который будет пустым в документе начнётся без имени
 		var stor = this.store();
 		//url строка и массив возвращают одну строку и кэш у обоих вариантов будет одинаковый
 		if (stor.cache.hasOwnProperty(url.toString())) return stor.cache[url];
-		if (typeof(tplempty) !== 'string') tplempty = 'root';
-		if (typeof(url) == 'string') var template = infra.loadTEXT(url);
+		if (typeof (tplempty) !== 'string') tplempty = 'root';
+		if (typeof (url) == 'string') var template = Load.loadTEXT(url);
 		else if (url) var template = url[0];
 
 
@@ -272,19 +278,18 @@ let Template = {
 
 		return tpls;
 	},
-	exec: function(tpls, data, tplroot, dataroot) { //Только тут нет conf
-		if (typeof(tplroot) == 'undefined') tplroot = 'root';
-		if (typeof(dataroot) == 'undefined') dataroot = '';
-
-
-
-		dataroot = infra.seq.right(dataroot);
+	exec: function (tpls, data, tplroot, dataroot) { //Только тут нет conf
+		if (tplroot == null) tplroot = 'root';
+		if (dataroot == null) dataroot = '';
+		
+		dataroot = Seq.right(dataroot);
+		
 		var conftpl = { 'tpls': tpls, 'data': data, 'tplroot': tplroot, 'dataroot': dataroot };
-		var r = infra.template.getVar(conftpl, dataroot);
+		var r = Template.getVar(conftpl, dataroot);
 		var tpldata = r['value'];
-		if (typeof(tpldata) == 'undefined' || tpldata === null || tpldata === false || tpldata === '') return ''; //Когда нет данных
+		if (typeof (tpldata) == 'undefined' || tpldata === null || tpldata === false || tpldata === '') return ''; //Когда нет данных
 
-		var tpl = infra.fora(tpls, function(t) {
+		var tpl = Each.exec(tpls, function (t) {
 			return t[tplroot];
 		});
 		if (!tpl) return tplroot; //Когда нет шаблона
@@ -308,7 +313,7 @@ let Template = {
 			if(search){
 				try{
 					var fn=eval('(function (data){'+search+'})');
-					var r=infra.seq.get(data,dataroot);
+					var r=Seq.get(data,dataroot);
 					fn.apply(r,[data]);//this это относительные данные, data в функции это корневые данные
 				}catch(e){
 					console.log('onparse: '+e);
@@ -322,31 +327,32 @@ let Template = {
 		html += this.execTpl(conftpl);
 		return html;
 	},
-	execTpl: function(conf) {
+	execTpl: function (conf) {
+		
 		var html = '';
 
-		infra.forr(conf['tpl'], function(d) {
-			var v = infra.template.getValue(conf, d);
-			if (typeof(v) === 'string') html += v;
-			if (typeof(v) === 'number') html += v;
-			if (v && typeof(v) === 'object' && v.toString() !== {}.toString() && !d['term']) html += v;
+		infra.forr(conf['tpl'], function (d) {
+			var v = Template.getValue(conf, d);
+			if (typeof (v) === 'string') html += v;
+			if (typeof (v) === 'number') html += v;
+			if (v && typeof (v) === 'object' && v.toString() !== {}.toString() && !d['term']) html += v;
 			else html += '';
 		});
 		return html;
 	},
-	getPath: function(conf, v) { //dataroot это прощитанный путь до переменной в котором нет замен
+	getPath: function (conf, v) { //dataroot это прощитанный путь до переменной в котором нет замен
 		/*
 		 * Функция прощитывает сложный путь
 		 * Путь содержит скобки и содежит запятые
 		 * asdf[asdf()]
 		 * */
 		var ar = [];
-		infra.forr(v, function(v) { //'[asdf,asdf,[asdf],asdf]'
-			if (typeof(v) === 'string' || typeof(v) === 'number') { //name
+		infra.forr(v, function (v) { //'[asdf,asdf,[asdf],asdf]'
+			if (typeof (v) === 'string' || typeof (v) === 'number') { //name
 				ar.push(v);
-			} else if (v && v.constructor === Array && v[0] && typeof(v[0]['orig']) !== 'undefined') { //name[name().name]
-				ar.push(infra.template.getValue(conf, v[0]));
-			} else if (v && typeof(v) == 'object' && typeof(v['orig']) !== 'undefined') { //name.name().name
+			} else if (v && v.constructor === Array && v[0] && typeof (v[0]['orig']) !== 'undefined') { //name[name().name]
+				ar.push(Template.getValue(conf, v[0]));
+			} else if (v && typeof (v) == 'object' && typeof (v['orig']) !== 'undefined') { //name.name().name
 
 
 
@@ -355,11 +361,11 @@ let Template = {
 					v['fn']['var'][0] = ar.concat(temp);
 					//Добавить в fn
 				}
-				var d = infra.template.getValue(conf, v, true);
+				var d = Template.getValue(conf, v, true);
 				if (ar.length) {
 					v['fn']['var'][0] = temp;
 				}
-				var scope = infra.template.scope;
+				var scope = Template.scope;
 				if (!scope['zinsert']) scope['zinsert'] = [];
 				var n = scope['zinsert'].length;
 				scope['zinsert'][n] = d;
@@ -368,13 +374,13 @@ let Template = {
 				ar.push('zinsert');
 				ar.push('' + n);
 			} else { //name[name.name]
-				var r = infra.template.getVar(conf, v);
+				var r = Template.getVar(conf, v);
 				ar.push(r['value']);
 			}
 		});
 		return ar;
 	},
-	getVar: function(conf, v) {
+	getVar: function (conf, v) {
 		//v содержит вставки по типу ['asdf',['asdf','asdf'],'asdf'] то есть это не одномерный массив. asdf[asdf.asdf].asdf
 		var root, value;
 		if (v == undefined) {
@@ -385,9 +391,9 @@ let Template = {
 		} else {
 			var right = this.getPath(conf, v); //Относительный путь
 
-			var p = infra.seq.right(conf['dataroot'].concat(right));
+			var p = Seq.right(conf['dataroot'].concat(right));
 
-			var scope = infra.template.scope;
+			var scope = Template.scope;
 			if (p[p.length - 1] == '~key') {
 				if (conf['dataroot'].length < 1) {
 					value = null;
@@ -401,26 +407,26 @@ let Template = {
 				scope['kinsert'][n] = value;
 				root = ['kinsert', '' + n];
 			} else {
-				var value = infra.seq.get(conf['data'], p); //Относительный путь, от данных
-				if (typeof(value) !== 'undefined') root = p;
+				var value = Seq.getr(conf['data'], p); //Относительный путь, от данных
+				if (typeof (value) !== 'undefined') root = p;
 
 				//Что брать {:t}   от data или scope относительный или прямой путь
 
-				if (typeof(value) == 'undefined' && p.length) { //Относительный путь, от scope
-					value = infra.seq.get(scope, p);
-					if (typeof(value) !== 'undefined') root = p;
+				if (typeof (value) == 'undefined' && p.length) { //Относительный путь, от scope
+					value = Seq.getr(scope, p);
+					if (typeof (value) !== 'undefined') root = p;
 				}
 
-				if (typeof(value) == 'undefined') { //Абслютный путь, от данных
-					value = infra.seq.get(conf['data'], right);
-					if (typeof(value) !== 'undefined') root = right;
+				if (typeof (value) == 'undefined') { //Абслютный путь, от данных
+					value = Seq.getr(conf['data'], right);
+					if (typeof (value) !== 'undefined') root = right;
 				}
 
-				if (typeof(value) == 'undefined' && right.length) { //Абсолютный путь, от scope
-					value = infra.seq.get(scope, right);
-					if (typeof(value) !== 'undefined') root = right;
+				if (typeof (value) == 'undefined' && right.length) { //Абсолютный путь, от scope
+					value = Seq.getr(scope, right);
+					if (typeof (value) !== 'undefined') root = right;
 				}
-				if (typeof(value) == 'undefined') root = right;
+				if (typeof (value) == 'undefined') root = right;
 			}
 		}
 		return { value: value, root: root };
@@ -442,11 +448,11 @@ let Template = {
 		b:{}
 	}
 	 */
-	getCommaVar: function(conf, d, term) {
+	getCommaVar: function (conf, d, term) {
 		//Приходит var начиная от запятых в d [[data],[layer,tpl]] (data,layer.tpl)
 		if (d['fn']) {
 			var func = this.getValue(conf, d['fn']); //как у функции сохранить this
-			if (typeof(func) == 'function') {
+			if (typeof (func) == 'function') {
 
 				var param = [];
 				for (var i = 0, l = d['var'].length; i < l; i++) { //Количество переменных
@@ -460,7 +466,7 @@ let Template = {
 						param.push(v);
 					}
 				} //$param[]=&$conf;
-				infra.template.moment = conf;
+				Template.moment = conf;
 				return func.apply(this, param);
 			} else {
 				return null;
@@ -472,8 +478,8 @@ let Template = {
 			return v;
 		}
 	},
-	foru: function(obj, callback) { //Бежим без разницы объекту или массиву
-		if (obj && typeof(obj) == 'object' && obj.constructor === Array) {
+	foru: function (obj, callback) { //Бежим без разницы объекту или массиву
+		if (obj && typeof (obj) == 'object' && obj.constructor === Array) {
 			return infra.forr(obj, callback); //Массив
 		} else {
 			for (var i in obj) {
@@ -482,9 +488,10 @@ let Template = {
 			}
 		}
 	},
-	getOnlyVar: function(conf, d, term, i) {
+	getOnlyVar: function (conf, d, term, i) {
+		
 		if (!i) i = 0;
-		if (typeof(d['tpl']) == 'object') { //{asdf():tpl}
+		if (typeof (d['tpl']) == 'object') { //{asdf():tpl}
 			var ts = [d['tpl'], conf['tpls']];
 			var tpl = this.exec(ts, conf['data'], 'root', conf['dataroot']);
 
@@ -496,46 +503,44 @@ let Template = {
 				var droot = lastroot.concat();
 				h = this.exec(conf['tpls'], conf['data'], tpl, droot);
 			} else {
-				this.foru(v, function(v, k) {
+				this.foru(v, function (v, k) {
 					var droot = lastroot.concat([k]);
-					h += infra.template.exec(conf['tpls'], conf['data'], tpl, droot);
+					h += Template.exec(conf['tpls'], conf['data'], tpl, droot);
 				});
 			}
 			v = h;
 		} else {
 			var r = this.getVar(conf, d['var'][i]);
 			var v = r['value'];
-			if (!term && typeof(v) === 'undefined') {
+			if (!term && typeof (v) === 'undefined') {
 				v = '';
 			}
 		}
 
 		return v;
 	},
-	test: function(...args) {
-		infra.unload('-infra/tests/resources/templates.js');
-		infra.require('-infra/tests/resources/templates.js');
-		if (infra.template.test.good) {
-			infra.template.test.apply(this, args);
+	test: function (...args) {
+		Load.unload('-infra/tests/resources/templates.js');
+		Load.require('-infra/tests/resources/templates.js');
+		if (Template.test.good) {
+			Template.test.apply(this, args);
 		} else {
 			console.log('Ошибка, загрузки тестов');
 		}
 	},
-	getValue: function(conf, d, term) { //Передаётся элемент подшаблона
-		if (typeof(d) == 'string') return d;
-
-
-		if (d['cond'] && typeof(d['term']) == 'undefined') {
+	getValue: function (conf, d, term) { //Передаётся элемент подшаблона
+		if (typeof (d) == 'string') return d;
+		if (d['cond'] && typeof (d['term']) == 'undefined') {
 			var a = this.getValue(conf, d['a']);
 			var b = this.getValue(conf, d['b']);
 			if (d['cond'] == '=') {
-				if (typeof(a) == 'boolean' || typeof(b) == 'boolean') {
+				if (typeof (a) == 'boolean' || typeof (b) == 'boolean') {
 					return (!a == !b);
 				} else {
 					return (a == b);
 				}
 			} else if (d['cond'] == '!') {
-				if (typeof(a) == 'boolean' || typeof(b) == 'boolean') { //Из-за разного поведения в php и в javascript
+				if (typeof (a) == 'boolean' || typeof (b) == 'boolean') { //Из-за разного поведения в php и в javascript
 					return (!a != !b);
 				} else {
 					return (a != b);
@@ -547,24 +552,24 @@ let Template = {
 			} else {
 				return false;
 			}
-		} else if (typeof(d['var']) !== 'undefined') {
+		} else if (typeof (d['var']) !== 'undefined') {
 			var v = this.getCommaVar(conf, d, term);
 			return v;
 		} else if (d['term']) {
 			var v = this.getValue(conf, d['term'], true);
-			if (typeof(v) == 'undefined' || v === null || v === false || v === '' || v === 0) {
+			if (typeof (v) == 'undefined' || v === null || v === false || v === '' || v === 0) {
 				return this.getValue(conf, d['no'], term);
 			} else {
 				return this.getValue(conf, d['yes'], term);
 			}
 		}
 	},
-	getTpls: function(ar, subtpl) { //subtpl - первый подшаблон с которого начинается если конкретно имя не указано
+	getTpls: function (ar, subtpl) { //subtpl - первый подшаблон с которого начинается если конкретно имя не указано
 		if (!subtpl) subtpl = 'root';
 		var res = {};
 		for (var i = 0, l = ar.length; i < l; i++) {
 			if (!ar.hasOwnProperty(i)) continue;
-			if (typeof(ar[i]) == 'object' && ar[i]['template']) {
+			if (typeof (ar[i]) == 'object' && ar[i]['template']) {
 				subtpl = ar[i]['template'];
 				res[subtpl] = []; //Для пустых шаблонов, чтобы появился массив, кроме root по умолчанию
 				continue;
@@ -572,10 +577,10 @@ let Template = {
 			if (!res[subtpl]) res[subtpl] = [];
 			res[subtpl].push(ar[i]);
 		}
-		infra.foro(res, function(val, subtpl) { //Удаляем переход на новую строчку в конце подшаблона
+		infra.foro(res, function (val, subtpl) { //Удаляем переход на новую строчку в конце подшаблона
 			var t = res[subtpl].length - 1;
 			var str = res[subtpl][t];
-			if (typeof(str) != 'string') return;
+			if (typeof (str) != 'string') return;
 			res[subtpl][t] = str.replace(/[\r\n]+\s*$/g, '');
 			//res[subtpl][t]=str.replace(/\s+$/g,'');
 		});
@@ -583,7 +588,7 @@ let Template = {
 	},
 	replacement: [],
 	replacement_ind: [],
-	parseStaple: function(exp) {
+	parseStaple: function (exp) {
 		//С К О Б К И
 		//Небыло проверок на функции
 		//Если проверка была в выражении передаваемом в функции, то тоже могут быть скобки
@@ -604,7 +609,7 @@ let Template = {
 
 					var k = fn + '(' + fnexp + ')';
 					var insnum = this.replacement_ind[k];
-					if (typeof(insnum) == 'undefined') {
+					if (typeof (insnum) == 'undefined') {
 						insnum = this.replacement.length;
 						this.replacement_ind[k] = insnum;
 					}
@@ -625,7 +630,7 @@ let Template = {
 			if (start) {
 				fnexp += ch; //Определение функции fn(fnexp
 			} else {
-				if (infra.forr(specchars, function(c) { if (c == ch) return true })) {
+				if (infra.forr(specchars, function (c) { if (c == ch) return true })) {
 					newexp += fn + ch;
 					fn = '';
 				} else {
@@ -643,7 +648,7 @@ let Template = {
 		if (newexp && fn) exp += fn;
 		return exp;
 	},
-	parseexp: function(exp, term, fnnow) { // Приоритет () , ? | & = ! : [] .
+	parseexp: function (exp, term, fnnow) { // Приоритет () , ? | & = ! : [] .
 		/*
 		 * Принимает строку варажения, возвращает сложную форму с orig обязательно
 		 */
@@ -676,7 +681,7 @@ let Template = {
 
 		if (cond.length > 1) { //Найдена запятая {some,:print}
 			res['var'] = [];
-			infra.forr(cond, function(c) {
+			infra.forr(cond, function (c) {
 				res['var'].push(this.parseexp(c, true));
 			}.bind(this));
 			return res;
@@ -748,9 +753,9 @@ let Template = {
 
 		return res;
 	},
-	parseBracket: function(exp, res) {
+	parseBracket: function (exp, res) {
 
-		if (typeof(res) == 'undefined') {
+		if (typeof (res) == 'undefined') {
 			var res = {};
 			res['orig'] = exp;
 		}
@@ -759,7 +764,7 @@ let Template = {
 
 		return res;
 	},
-	parseCommaVar: function(v) { //Ищим запятые
+	parseCommaVar: function (v) { //Ищим запятые
 		//в выражении var круглых скобок нет они заменены на xinsert (fn())
 		//Возвращается массив, элементы либо ещё один главный объект либо массив переменной
 		//
@@ -769,31 +774,31 @@ let Template = {
 		//Если массив значит скобки, если объект значит сложное выражение в котором могут быть запятые
 		//Первый массив - запятые
 		//Второй массив - переменная
-		//Далее это попадает в infra_template_getVar
+		//Далее это попадает в Template_getVar
 
 		if (v == '') v = [];
 		else v = v.split(','); //Запятые могут быть только на первом уровне, все вложенные запятые заменены на xinsert
 		var res = [];
-		infra.fora(v, function(v) { //запятые
-			var r = infra.template.parsevar(v);
+		infra.fora(v, function (v) { //запятые
+			var r = Template.parsevar(v);
 			res.push(r);
 		});
 		this.checkInsert(res);
 		return res;
 	},
-	checkInsert: function(rr) {
-		infra.fora(rr, function(vv, i, group) { //точки, скобки
-			if (typeof(vv) == 'string') {
+	checkInsert: function (rr) {
+		infra.fora(rr, function (vv, i, group) { //точки, скобки
+			if (typeof (vv) == 'string') {
 				var m = vv.match(/^xinsert(\d+)$/);
 				if (m) {
-					group[i] = infra.template.replacement[m[1]];
+					group[i] = Template.replacement[m[1]];
 				}
 			} else if (vv && vv['orig']) {
-				infra.template.checkInsert(vv['var']);
+				Template.checkInsert(vv['var']);
 			}
 		});
 	},
-	parsevar: function(v) { //Ищим скобки as.df[asdf[y.t]][qwer][ert]   asdf[asdf][asdf]
+	parsevar: function (v) { //Ищим скобки as.df[asdf[y.t]][qwer][ert]   asdf[asdf][asdf]
 		if (v == '') return undefined;
 		//Замен xinsert уже нет
 		//asdf.asdf[asdf] На выходе ['asdf','asdf',['asdf']]
@@ -822,7 +827,7 @@ let Template = {
 					var r = {};
 					r['orig'] = v;
 					r['multi'] = (tpl.charAt(0) === ':');
-					if (str) res = res.concat(infra.seq.right(str));
+					if (str) res = res.concat(Seq.right(str));
 
 					r['var'] = [res]; //В переменных к шаблону запятые не обрабатываются. res это массив с одним элементом в котором уже элементов много
 					if (r['multi']) tpl = tpl.substr(1);
@@ -838,7 +843,7 @@ let Template = {
 				if (start) {
 					open++;
 				} else {
-					res = res.concat(infra.seq.right(str));
+					res = res.concat(Seq.right(str));
 					start = true;
 				}
 			}
@@ -849,8 +854,8 @@ let Template = {
 		for (var i in res) {
 			if (!res.hasOwnProperty(i)) continue;
 			var v = res[i];
-			if (typeof(v) == 'string') {
-				var t = infra.seq.right(v);
+			if (typeof (v) == 'string') {
+				var t = Seq.right(v);
 				//a.b[b.c][c]
 				//[a,b,[b,c],[c]]
 				//b,[b,c]
@@ -866,11 +871,11 @@ let Template = {
 		return r;
 	},
 	scope: { //Набор функций доступных везде ну и значений разных $ - стандартная функция шаблонизатора, которых нет в глобальной области, остальные расширения совпадающие с глобальной областью javascript и в его синтаксисе
-		'$typeof': function(v) {
-			return typeof(v);
+		'$typeof': function (v) {
+			return typeof (v);
 		},
-		'~typeof': function(v) {
-			return typeof(v);
+		'~typeof': function (v) {
+			return typeof (v);
 		},
 		'$true': true,
 		'$false': false,
@@ -879,46 +884,46 @@ let Template = {
 		'~json': function (val) {
 			return JSON.stringify(val);
 		},
-		'~years': function(start) {
-			y = new Date().getFullYear();
+		'~years': function (start) {
+			let y = new Date().getFullYear();
 			if (y == start) return y;
 			return start + '&ndash;' + y;
 		},
-		'~date': function(format, time) {
+		'~date': function (format, time) {
 			if (!time) return '';
 			if (time === true) time = new Date();
 			return phpdate(format, time);
 		},
-		'$date': function(format, time) {
+		'$date': function (format, time) {
 			if (!time) return '';
 			if (time === true) time = new Date();
 			return phpdate(format, time);
 		},
-		'$obj': function(...args) {
-			return infra.template.scope['~obj'].apply(this, args);
+		'$obj': function (...args) {
+			return Template.scope['~obj'].apply(this, args);
 		},
-		'~obj': function(...args) { //создаём объект {$obj(name1,val1,name2,val2)}
+		'~obj': function (...args) { //создаём объект {$obj(name1,val1,name2,val2)}
 			var obj = {};
 			for (var i = 0, l = args.length; i < l; i = i + 2) {
 				obj[args[i]] = args[i + 1];
 			}
 			return obj;
 		},
-		'~encode': function(str) {
+		'~encode': function (str) {
 			if (!str) return str;
 			return encodeURIComponent(str);
 		},
-		'~decode': function(str) {
+		'~decode': function (str) {
 			if (!str) return str;
 			return decodeURIComponent(str);
 		},
-		'$length': function(obj) {
-			return infra.template.scope['~length'](obj);
+		'$length': function (obj) {
+			return Template.scope['~length'](obj);
 		},
-		'~length': function(obj) {
+		'~length': function (obj) {
 			if (!obj) return 0;
 			if (obj.constructor === Array) return obj.length;
-			if (obj && typeof(obj) == 'object') {
+			if (obj && typeof (obj) == 'object') {
 				var c = 0;
 				for (var i in obj) {
 					if (!obj.hasOwnProperty(i)) continue;
@@ -929,63 +934,63 @@ let Template = {
 			if (obj.length != undefined) return obj.length;
 			return 0;
 		},
-		'$inArray': function(...args) {
-			return infra.template.scope['~inArray'].apply(this, args);
+		'$inArray': function (...args) {
+			return Template.scope['~inArray'].apply(this, args);
 		},
-		'~inArray': function(val, arr) {
+		'~inArray': function (val, arr) {
 			if (!arr) return false;
 			if (arr.constructor === Array) {
-				return !!infra.forr(arr, function(v) {
+				return !!infra.forr(arr, function (v) {
 					if (v == val) return true;
 				});
 			}
-			if (typeof(arr) == 'object') {
-				return !!infra.foro(arr, function(v) {
+			if (typeof (arr) == 'object') {
+				return !!infra.foro(arr, function (v) {
 					if (v == val) return true;
 				});
 			}
 		},
 		'~_regexps': {},
-		'~match': function(exp, val) {
-			var obj = infra.template.scope['~_regexps'];
+		'~match': function (exp, val) {
+			var obj = Template.scope['~_regexps'];
 			if (!obj[exp]) obj[exp] = new RegExp(exp);
 			return String(val).match(obj[exp]);
 		},
-		'~test': function(exp, val) {
-			var obj = infra.template.scope['~_regexps'];
+		'~test': function (exp, val) {
+			var obj = Template.scope['~_regexps'];
 			if (!obj[exp]) obj[exp] = new RegExp(exp);
 			return obj[exp].test(String(val));
 		},
-		'~lower': function(str) {
+		'~lower': function (str) {
 			if (!str) return '';
 			return str.toLowerCase();
 		},
-		'~upper': function(str) {
+		'~upper': function (str) {
 			if (!str) return '';
 			return str.toUpperCase();
 		},
-		'~print': function(data) {
+		'~print': function (data) {
 			var tpl = "{root:}<pre>{~typeof(.)=:object?:echo?:str}</pre>{echo:}{::row}{row:}{~key}: {~typeof(.)=:object?:obj?:str}{obj:}<div style='margin-left:50px'>{:echo}</div>{str:}{~typeof(.)=:boolean?:bool?.}<br>{bool:}{.?:true?:false}";
 			var res = Template.parse([tpl], data);
 			return res;
 		},
-		'~indexOf': function(str, v) {
+		'~indexOf': function (str, v) {
 			str = str.toLowerCase();
 			v = v.toLowerCase();
 			return str.indexOf(v);
 		},
-		'~dataroot': function (){
+		'~dataroot': function () {
 			//return Template.moment.dataroot;
-			return Sequence.short(Template.moment.dataroot);
+			return Seq.short(Template.moment.dataroot);
 		},
-		'~parse': function(str) {
+		'~parse': function (str) {
 			var conf = Template.moment;
 			if (!str) return '';
-			if (typeof(str) == 'object' && !str[0]) return '';
+			if (typeof (str) == 'object' && !str[0]) return '';
 			var res = Template.parse(str, conf.data, 'root', conf['dataroot'], 'root'); //(url,data,tplroot,dataroot,tplempty){
 			return res;
 		},
-		'~words': function(count, one, two, five) {
+		'~words': function (count, one, two, five) {
 			if (!count) count = 0;
 			if (count > 20) {
 				var str = count.toString();
@@ -1007,12 +1012,12 @@ let Template = {
 			var dataroot = conf['dataroot'].concat();
 			var key = dataroot.pop();
 
-			var obj = Sequence.get(conf['data'], dataroot);
+			var obj = Seq.getr(conf['data'], dataroot);
 			if (!obj) return true;
 
 			var n = 0;
 			if (obj.constructor === Array) {
-				for(var k = 0, l = obj.length; k < l; k++) {
+				for (var k = 0, l = obj.length; k < l; k++) {
 					if (n == num) return false;
 					n++;
 					if (k == key) return true;
@@ -1028,7 +1033,7 @@ let Template = {
 		},
 		'~cut': function (len, str) {
 			if (!str || str.length < len) return str;
-			else return str.substr(0,len)+'...';
+			else return str.substr(0, len) + '...';
 		},
 		'~after': function (num) {
 			if (!num) return true;
@@ -1036,12 +1041,12 @@ let Template = {
 			var dataroot = conf['dataroot'].concat();
 			var key = dataroot.pop();
 
-			var obj = Sequence.get(conf['data'], dataroot);
+			var obj = Seq.getr(conf['data'], dataroot);
 			if (!obj) return false;
 
 			var n = 0;
 			if (obj.constructor === Array) {
-				for(var k = 0, l = obj.length; k < l; k++) {
+				for (var k = 0, l = obj.length; k < l; k++) {
 					if (n == num) return true;
 					n++;
 					if (k == key) return false;
@@ -1055,46 +1060,46 @@ let Template = {
 			}
 			return false;
 		},
-		'~leftOver': function(first, second) { //Кратное
+		'~leftOver': function (first, second) { //Кратное
 			first = Number(first);
 			second = Number(second);
 			return first % second;
 		},
-		'~sum': function(...args) {
+		'~sum': function (...args) {
 			let n = 0;
 			for (let i = 0, l = args.length; i < l; i++) n += Number(args[i]);
 			return n;
 		},
-		'~array': function(...args) {
+		'~array': function (...args) {
 			var ar = [];
 			for (let i = 0, l = args.length; i < l; i++) ar.push(args[i]);
 			return ar;
 		},
-		'~multi': function(...args) {
+		'~multi': function (...args) {
 			var n = 1;
 			for (let i = 0, l = args.length; i < l; i++) n *= Number(args[i]);
 			return n;
 		},
-		'~even': function() {
+		'~even': function () {
 			var conf = Template.moment;
 			var dataroot = conf['dataroot'].concat();
 			var key = dataroot.pop();
-			var obj = infra.seq.get(conf['data'], dataroot);
+			var obj = Seq.getr(conf['data'], dataroot);
 
 			var even = 1;
-			infra.template.foru(obj, function(v, k) {
+			Template.foru(obj, function (v, k) {
 				if (k == key) return false;
 				even = even * -1;
 			});
 			return (even == 1);
 		},
-		'~odd': function() {
-			return !infra.template.scope['~even']();
+		'~odd': function () {
+			return !Template.scope['~even']();
 		},
-		'~path': function(src) {
+		'~path': function (src) {
 			//Передаётся либо относительный путь от корня
 			//либо абсолютный путь
-			var obj = infra.template.scope['~_regexps'];
+			var obj = Template.scope['~_regexps'];
 			var exp = '^https{0,1}:\/\/';
 			if (!obj[exp]) obj[exp] = new RegExp(exp);
 			if (String(src).match(obj[exp])) return src;
@@ -1103,17 +1108,17 @@ let Template = {
 			if (String(src).match(obj[exp])) return src;
 			return '/' + src;
 		},
-		'~root': function() {
-			var conf = infra.template.moment;
+		'~root': function () {
+			var conf = Template.moment;
 			return conf['data'];
 		},
-		'~last': function() {
-			var conf = infra.template.moment;
+		'~last': function () {
+			var conf = Template.moment;
 			var dataroot = conf['dataroot'].concat();
 			var key = dataroot.pop();
-			var obj = infra.seq.get(conf['data'], dataroot);
+			var obj = Seq.getr(conf['data'], dataroot);
 
-			if (typeof(obj) != 'object') return true;
+			if (typeof (obj) != 'object') return true;
 
 			if (obj.constructor === Array) {
 				var k = obj.length - 1;
@@ -1124,17 +1129,17 @@ let Template = {
 			}
 			return (k === key);
 		},
-		'~random': function(...args) {
+		'~random': function (...args) {
 			return args[Math.floor(Math.random() * args.length)];
 		},
-		'~first': function() {
+		'~first': function () {
 			//Возвращает true или false первый или не первый это элемент
-			var conf = infra.template.moment;
+			var conf = Template.moment;
 			var dataroot = conf['dataroot'].concat();
 			var key = dataroot.pop();
-			var obj = infra.seq.get(conf['data'], dataroot);
+			var obj = Seq.getr(conf['data'], dataroot);
 
-			if (typeof(obj) != 'object') return true;
+			if (typeof (obj) != 'object') return true;
 
 			if (obj.constructor === Array) {
 				var k = 0;
@@ -1144,7 +1149,7 @@ let Template = {
 
 			return (k == key);
 		},
-		'~Number': function(key, def) {
+		'~Number': function (key, def) {
 			var n = Number(key);
 			if (!n && n != 0) n = def;
 			return n;
@@ -1159,7 +1164,7 @@ let Template = {
 			}
 			return ar;
 		},
-		'~cost': function(cost, text) {
+		'~cost': function (cost, text) {
 
 
 			if (!cost && cost != 0) cost = '';
@@ -1195,29 +1200,29 @@ let Template = {
 			return cost;
 		},
 		"infra": {
-			"theme": function(path) {
-				return infra.theme(path);
+			"theme": function (path) {
+				return Path.theme(path);
 			},
 			"seq": {
-				"short": infra.seq.short,
-				"right": infra.seq.right
+				"short": Seq.short,
+				"right": Seq.right
 			},
-			'srcinfo': infra.srcinfo,
+			'srcinfo': Load.srcinfo,
 			'conf': Config.get(),
 			'view': {
-				getPath: function(...args) {
-					return infra.view.getPath.apply(infra.view, args)
+				getPath: function (...args) {
+					return View.getPath.apply(View, args)
 				},
-				getHost: function(...args) {
-					return infra.view.getHost.apply(infra.view, args)
+				getHost: function (...args) {
+					return View.getHost.apply(View, args)
 				},
-				getRoot: function(...args) {
-					return infra.view.getRoot.apply(infra.view, args)
+				getRoot: function (...args) {
+					return View.getRoot.apply(View, args)
 				}
 			}
 		},
 		'location': location
 	}
 }
-window.Template = infra.template = Template;
-export {Template}
+window.Template = Template;
+export { Template }
