@@ -3,6 +3,6 @@
 	"conf":"infrajs\\template\\Template",
 	"dependencies":["config","event","sequence"],
 	"require":"infra.php",
-	"js":["Template.js","infra.js"],
+	"js":["infra.js"],
 	"tester":"tests/"
 }
