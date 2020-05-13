@@ -219,43 +219,6 @@ let Template = {
 			}
 		}
 	},
-	/*runTpls:function(d,call){
-		infra.fora(d,function(d){
-			if(d.tpl)call(d.tpl);
-			this.runTpls(d.term,call);
-			this.runTpls(d.yes,call);
-			this.runTpls(d.no,call);
-			if(d['var']&&d['var'][0]&&d['var'][0]['orig'])this.runTpls(d['var'][0],call);
-		}.bind(this));
-	},
-	parseEmptyTpls:function(tpls){
-		var res=[];
-		infra.foro(tpls,function(t){
-			Template.runTpls(t,function(tpl){
-				if(!tpls[tpl]){
-					res.unshift(Template.make([tpl],tpl));
-				}
-			});
-		});
-		res.unshift(tpls);
-		return res;
-	},*/
-	/*parseEmptyTpls:function(tpls){
-		var res=[];
-		for(var sub in tpls){
-			if(!tpls.hasOwnProperty(sub))continue;
-			for(var i=0,l=tpls[sub].length;i<l;i++){
-				if(!tpls[sub].hasOwnProperty(i))continue;
-				if(tpls[sub][i].tpl&&!tpls[tpls[sub][i].tpl]){//Нашли используемый подшаблон, которого нет
-					res.unshift(Template.make([tpls[sub][i].tpl],tpls[sub][i].tpl));
-					//При объединении шаблонов, добавляемые подшаблоны будут с более высоким приоритетом чем те что уже есть, так что не боимся что будет заменён подшаблон, который далее будет добавлен первым как дополнительный
-					//Но если дополнительные подшаблоны добавятся как шаблоны по умолчанию, в конец списка, то до таких подшаблонов дело никогда не дойдёт
-				}
-			}
-		}
-		res.unshift(tpls);
-		return res;
-	},*/
 	make: function (url, tplempty) { //tplempty - имя для подшаблона который будет пустым в документе начнётся без имени
 		var stor = this.store();
 		//url строка и массив возвращают одну строку и кэш у обоих вариантов будет одинаковый
