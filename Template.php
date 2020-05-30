@@ -419,7 +419,7 @@ class Template {
 			$p = array_merge($conf['dataroot'], $right);
 
 			$p = Sequence::right($p);
-
+			
 			if (isset($p[sizeof($p) - 1]) && (string) $p[sizeof($p) - 1] === '~key') {
 				if (sizeof($conf['dataroot']) < 1) {
 					$value = null;
