@@ -1152,6 +1152,9 @@ Template::$scope = array(
 
 		return $r;
 	},
+	'~tel' => function ($phone) {
+		return preg_replace("/[^\d\+]/",'', $phone);
+	},
 	'~words' => function ($count, $one = '', $two = null, $five = null) {
 		if (is_null($two)) {
 			$two = $one;

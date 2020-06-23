@@ -953,6 +953,9 @@ let Template = {
 			var res = Template.parse(str, conf.data, 'root', conf['dataroot'], 'root'); //(url,data,tplroot,dataroot,tplempty){
 			return res;
 		},
+		'~tel': function (phone) {
+			return phone.replace(/[^\d\+]/g,'')
+		},
 		'~words': function (count, one, two, five) {
 			if (!count) count = 0;
 			if (count > 20) {
