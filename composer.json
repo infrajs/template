@@ -5,7 +5,6 @@
 		"psr-4": { "infrajs\\template\\": "/" }
 	},
 	"require":{
-		"infrajs/once":"~1",
 		"infrajs/sequence":"~1"
 	}
 }

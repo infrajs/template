@@ -1,7 +1,8 @@
 <?php
+
 namespace infrajs\template;
+
 use infrajs\sequence\Sequence;
-use infrajs\once\Once;
 use infrajs\path\Path;
 /*
 parse
@@ -39,9 +40,10 @@ parse
  * Функции берутся в следующем порядке сначало от this в данных потом от корня данных потом в спецколлекции потом в глобальной области
  **/
 
-class Template {
-	public static $conf=array();
-	public static $fs=array();
+class Template
+{
+	public static $conf = array();
+	public static $fs = array();
 	public static $md = array();
 	public static $moment = false;
 	public static $replacement = array();
@@ -55,11 +57,11 @@ class Template {
 		$res = array();
 		$exp = '';
 		$str = '';
-		
-		$strar=str_split($template);
+
+		$strar = str_split($template);
 		for ($i = 0, $l = sizeof($strar); $i < $l; ++$i) {
-			$sym=$strar[$i];
-			
+			$sym = $strar[$i];
+
 			if (!$start) {
 				if ($sym === '{') {
 					$start = 1;
@@ -68,8 +70,8 @@ class Template {
 				}
 			} elseif ($start === 1) {
 				if (preg_match("/\s/", $sym)) {
-					$start = false;//Игнорируем фигурную скобку если далее пробельный символ
-					$str .= '{'.$sym;
+					$start = false; //Игнорируем фигурную скобку если далее пробельный символ
+					$str .= '{' . $sym;
 				} else {
 					$start = true;
 				}
@@ -104,7 +106,7 @@ class Template {
 			$res[] = $str;
 		}
 		if ($exp) {
-			$res[sizeof($res) - 1] .= '{'.$exp;
+			$res[sizeof($res) - 1] .= '{' . $exp;
 		}
 
 		return $res;
@@ -121,7 +123,7 @@ class Template {
 		 * */
 
 
-		foreach($group as $i => $exp) {
+		foreach ($group as $i => $exp) {
 			if (is_string($exp)) {
 				continue;
 			} else {
@@ -153,7 +155,7 @@ class Template {
 
 			$group[$i] = static::parseexp($exp);
 
-	/*
+			/*
 			 * a[b(c)]()
 			 * a[(b(c))]()
 			 * a[  (b (c))  ] ()
@@ -171,45 +173,46 @@ class Template {
 
 		return $text;
 	}
-	
+
 	public static function includes($tpls, $data, $dataroot)
 	{
-		$newtpls = array();	
+		$newtpls = array();
 		$find = array();
 		foreach ($tpls as $key => $val) {
 			$newtpls[$key] = $tpls[$key];
-			if (sizeof($val)<1) {
+			if (sizeof($val) < 1) {
 				continue;
 			}
-			if (((string) $key){mb_strlen($key)-1} == ':') {
+			if (((string) $key){
+			mb_strlen($key) - 1} == ':') {
 				$data = true;
 				$src = static::exec($tpls, $data, $key);
 				$newtpls[$key] = array(); //Иначе два раза применится
-				$text=static::load($src);
+				$text = static::load($src);
 				$tpls2 = static::make(array($text));
 				$tpls2 = static::includes($tpls2, $data, $dataroot);
 				$key = mb_substr($key, 0, -1);
-				if ($key) $key.='.';
-				$find[$key]=$tpls2;
+				if ($key) $key .= '.';
+				$find[$key] = $tpls2;
 			}
 		}
 
 		foreach ($find as $name => &$t) {
 			foreach ($t as $k => &$subtpl) {
-				$k=$name.$k;
+				$k = $name . $k;
 				if (isset($tpls[$k])) {
 					continue;
 				}
 
 				foreach ($subtpl as &$exp) {
 					if (!is_string($exp)) {
-						
+
 						static::runExpTpl($exp, function (&$exp) use ($name) {
 							array_unshift($exp['tpl']['root'], $name);
 						});
 					}
 				}
-				$newtpls[$k]=$subtpl;
+				$newtpls[$k] = $subtpl;
 			}
 		}
 		return $newtpls;
@@ -233,45 +236,43 @@ class Template {
 				static::runExpTpl($exp['fn'], $call);
 			}
 			if (!empty($exp['var'])) {
-				foreach ($exp['var'] as &$com) {//comma
-					foreach ($com as &$br) {//bracket
+				foreach ($exp['var'] as &$com) { //comma
+					foreach ($com as &$br) { //bracket
 						if (isset($br['tpl'])) {
 							$call($br);
 						}
-		                if(is_array($br)){
-		                    static::runExpTpl($br, $call);
-		                }
+						if (is_array($br)) {
+							static::runExpTpl($br, $call);
+						}
 					}
 				}
 			}
 		}
 	}
-	public static function load($url){
-		$fn=static::$fs['load'];
+	public static function load($url)
+	{
+		$fn = static::$fs['load'];
 		return $fn($url);
 	}
+	public static $once = array();
 	public static function &make($url, $tplempty = 'root')
 	{
-		$args = array($url, $tplempty);
-		
-		$tpls = Once::func( function ($url, $tplempty) {
+		$key = json_encode([$url, $tplempty], JSON_UNESCAPED_UNICODE);
+		if (isset(Template::$once[$key])) return Template::$once[$key];
 
-			if (is_array($url)) $template=$url[0];
-			else $template=static::load($url);
 
-					
-			$ar = static::prepare($template);
-			static::analysis($ar);
-			$tpls = static::getTpls($ar, $tplempty);
-		
-			if (!$tpls) {
-				$tpls[$tplempty] = array();
-			}//Пустой шаблон добавляется когда вообще ничего нет
-			//$res=static::parseEmptyTpls($tpls);
-			return $tpls;
-		}, $args);
+		if (is_array($url)) $template = $url[0];
+		else $template = static::load($url);
 
-		
+
+		$ar = static::prepare($template);
+		static::analysis($ar);
+		$tpls = static::getTpls($ar, $tplempty);
+
+		if (!$tpls) $tpls[$tplempty] = array();
+		//Пустой шаблон добавляется когда вообще ничего нет
+		//$res=static::parseEmptyTpls($tpls);
+		Template::$once[$key] = $tpls;
 		return $tpls;
 	}
 	public static function exec(&$tpls, &$data, $tplroot = 'root', $dataroot = '')
@@ -283,22 +284,22 @@ class Template {
 		if (is_null($dataroot)) {
 			$dataroot = '';
 		}
-			
+
 		$dataroot = Sequence::right($dataroot);
-		$conftpl = array('tpls' => &$tpls,'data' => &$data,'tplroot' => &$tplroot,'dataroot' => $dataroot);
+		$conftpl = array('tpls' => &$tpls, 'data' => &$data, 'tplroot' => &$tplroot, 'dataroot' => $dataroot);
 		$r = static::getVar($conftpl, $dataroot);
 		$tpldata = $r['value'];
 		//if(!$tpldata&&!is_array($tpldata)&&$tpldata!=='0'&&$tpldata!==0)return '';//Когда нет данных
 
 		if (is_null($tpldata) || $tpldata === false || $tpldata === '') {
 			return '';
-		}//Данные должны быть 0 подходит
+		} //Данные должны быть 0 подходит
 
-	
+
 		$tpl = null;
 		static::fora($tpls, function (&$t) use ($tplroot, &$tpl) {
-			if (!isset($t[$tplroot])||is_null($t[$tplroot])) return;
-			$tpl=$t[$tplroot];
+			if (!isset($t[$tplroot]) || is_null($t[$tplroot])) return;
+			$tpl = $t[$tplroot];
 			return false;
 		});
 
@@ -306,7 +307,7 @@ class Template {
 
 		$conftpl['tpl'] = &$tpl;
 
-		
+
 
 		return static::execTpl($conftpl);
 	}
@@ -319,11 +320,11 @@ class Template {
 		//var - asdf[asdf] но получить такую переменную нельзя нужно расчитать этот путь getPath asdf.qwer и где же хранить этот путь
 		//lastroot нужен чтобы прощитать с каким dataroot нужно подключить шаблон это всегда путь от корня
 
-		
-		
-		foreach ($conf['tpl'] as $i => $d) {	
 
-			$var = static::getValue($conf, $conf['tpl'][$i]);//В getValue будет вызываться execTpl но dataroot всегда будет возвращаться в прежнее значение
+
+		foreach ($conf['tpl'] as $i => $d) {
+
+			$var = static::getValue($conf, $conf['tpl'][$i]); //В getValue будет вызываться execTpl но dataroot всегда будет возвращаться в прежнее значение
 			if (is_string($var)) {
 				$html .= $var;
 			} else if (is_float($var)) {
@@ -346,7 +347,7 @@ class Template {
 		 * Путь содержит скобки и содежит запятые
 		 * asdf[asdf()]
 		 * */
-		
+
 		$ar = array();
 		//Each::forr($var, function &(&$v) use (&$conf, &$ar) {
 		foreach ($var as $i => $v) {
@@ -379,7 +380,7 @@ class Template {
 					//Добавить в fn
 				}
 
-				$d = static::getValue($conf, $var[$i], true);//{some()} вывод пустой если функции нет, чтобы работало {some()?1?2}. Была ошибка выводилось 1 когда функции небыло, так как в условие попадала строка some
+				$d = static::getValue($conf, $var[$i], true); //{some()} вывод пустой если функции нет, чтобы работало {some()?1?2}. Была ошибка выводилось 1 когда функции небыло, так как в условие попадала строка some
 				if ($ar) {
 					$v['fn']['var'][0] = $temp;
 				}
@@ -397,7 +398,6 @@ class Template {
 				$r = $r['value'];
 				$ar[] = $r;
 			}
-			
 		};
 
 		return $ar;
@@ -407,7 +407,7 @@ class Template {
 		//dataroot это прощитанный путь до переменной в котором нет замен
 		//$var содержит вставки по типу ['asdf',['asdf','asdf'],'asdf'] то есть это не одномерный массив. asdf[asdf.asdf].asdf
 		//var одна переменная
-		
+
 		if (is_null($var)) {
 			//if($checklastroot)$conf['lastroot']=false;//Афигенная ошибка. получена переменная и далее идём к шаблону переменной для которого нет, узнав об этом lastroot не сбивается и шаблон дальше загружается с переменной в lastroot {$indexOf(:asdf,:s)}{data:descr}{descr:}{}
 			$value = '';
@@ -415,11 +415,11 @@ class Template {
 		} else {
 
 			$right = static::getPath($conf, $var);
-			
+
 			$p = array_merge($conf['dataroot'], $right);
 
 			$p = Sequence::right($p);
-			
+
 			if (isset($p[sizeof($p) - 1]) && (string) $p[sizeof($p) - 1] === '~key') {
 				if (sizeof($conf['dataroot']) < 1) {
 					$value = null;
@@ -431,35 +431,35 @@ class Template {
 				}
 				$n = sizeof(static::$scope['kinsert']);
 				static::$scope['kinsert'][$n] = $value;
-				$root = array('kinsert',(string) $n);
+				$root = array('kinsert', (string) $n);
 			} else {
-				$value = Sequence::get($conf['data'], $p);//Относительный путь от данных
+				$value = Sequence::get($conf['data'], $p); //Относительный путь от данных
 
 				if (!is_null($value)) {
 					$root = $p;
 				}
 
 				if (is_null($value) && sizeof($p)) {
-					$value = Sequence::get(static::$scope, $p);//Относительный путь
+					$value = Sequence::get(static::$scope, $p); //Относительный путь
 					if (!is_null($value)) {
 						$root = $p;
 					}
 				}
 
 				if (is_null($value)) {
-					$value = Sequence::get($conf['data'], $right);//Абсолютный путь
+					$value = Sequence::get($conf['data'], $right); //Абсолютный путь
 					if (!is_null($value)) {
 						$root = $right;
 					}
 				}
 
 				if (is_null($value) && sizeof($right)) {
-					$value = Sequence::get(static::$scope, $right);//Абсолютный путь
+					$value = Sequence::get(static::$scope, $right); //Абсолютный путь
 					if (!is_null($value)) {
 						$root = $right;
 					}
 				}
-				
+
 				if (is_object($value) && method_exists($value, 'toString')) {
 					$value = $value->toString();
 				}
@@ -470,9 +470,9 @@ class Template {
 			}
 		}
 
-		
+
 		return array(
-			'root' => $root,//Путь от корня
+			'root' => $root, //Путь от корня
 			'value' => $value,
 			//'right'=>$right//Путь которого достаточно чтобы найти переменную и путь о котором знает пользователь asdf[asdf] = asdf.qwer
 		);
@@ -501,7 +501,7 @@ class Template {
 	}
 	public static function getCommaVar(&$conf, &$d, $term = false)
 	{
-			
+
 		//Приходит var начиная от запятых в $d
 		if (!empty($d['fn'])) {
 			$func = static::getValue($conf, $d['fn']);
@@ -521,12 +521,12 @@ class Template {
 				static::$moment = $conf;
 				return call_user_func_array($func, $param);
 			} else {
-				return;//что возвращается когда нет функции которую нужно вызвать
+				return; //что возвращается когда нет функции которую нужно вызвать
 				/*if($term)return null;
 				else return $d['orig'];*/
 			}
 		} else {
-			
+
 			$v = static::getOnlyVar($conf, $d, $term);
 
 			return $v;
@@ -534,10 +534,10 @@ class Template {
 	}
 	public static function getOnlyVar(&$conf, &$d, $term, $i = 0)
 	{
-		
+
 		if (isset($d['tpl']) && is_array($d['tpl'])) { //{asdf():tpl}
 			$ts = array($d['tpl'], $conf['tpls']);
-			
+
 			$tpl = static::exec($ts, $conf['data'], 'root', $conf['dataroot']);
 
 			$r = static::getVar($conf, $d['var'][$i]);
@@ -569,7 +569,7 @@ class Template {
 				$r = null;
 			}
 
-			if(!is_null($r)) {
+			if (!is_null($r)) {
 				$v = $r['value'];
 				if (!$term && is_null($v)) {
 					$v = '';
@@ -621,13 +621,13 @@ class Template {
 	{
 		//subtpl - первый подшаблон с которого начинается если конкретно имя не указано
 		$res = array();
-		
+
 		for ($i = 0; $i < sizeof($ar); ++$i) {
 			if (is_array($ar[$i]) && isset($ar[$i]['template'])) {
 				//Если это шаблон
 				$subtpl = $ar[$i]['template'];
 
-				$res[$subtpl] = array();//Для пустых определённый шаблонво, кроме root по умолчанию, для него массив не появится
+				$res[$subtpl] = array(); //Для пустых определённый шаблонво, кроме root по умолчанию, для него массив не появится
 				continue;
 			};
 			if (!isset($res[$subtpl])) {
@@ -648,7 +648,6 @@ class Template {
 
 			//$ch = mb_substr($str,mb_strlen($str) - 1,1);
 			$res[$subtpl][$t] = preg_replace('/[\r\n]+\s*$/', '', $res[$subtpl][$t]);
-
 		}
 		return $res;
 	}
@@ -663,13 +662,13 @@ class Template {
 		$fnexp = '';
 		$start = 0;
 		$newexp = '';
-		$specchars = array('?','|','&','[',']','{','}','=','!','>','<',':',',');//&
-		
+		$specchars = array('?', '|', '&', '[', ']', '{', '}', '=', '!', '>', '<', ':', ','); //&
+
 		//Делается замена (str) на xinsert.. список знаков при наличии которых в str отменяет замену и отменяет накопление имени функции перед скобками
-		
-		$expar=str_split($exp);
+
+		$expar = str_split($exp);
 		for ($i = 0, $l = sizeof($expar); $i < $l; ++$i) {
-			$ch=$expar[$i];
+			$ch = $expar[$i];
 			/*
 			 * Механизм замен из asdf.asdf(asdf,asdf) получем временную замену xinsert0 и так каждые скобки после обработки в выражении уже нет скобок а замены расчитываются когда до них доходит дело
 			 * любые скобки считаются фукнцией функция без имени просто возвращает результат
@@ -677,13 +676,13 @@ class Template {
 			if ($ch == ')' && $start) {
 				--$start;
 				if (!$start) {
-					$k = $fn.'('.$fnexp.')';
+					$k = $fn . '(' . $fnexp . ')';
 					$insnum = isset(static::$replacement_ind[$k]) ? static::$replacement_ind[$k] : null;
 					if (is_null($insnum)) {
 						$insnum = sizeof(static::$replacement);
 						static::$replacement_ind[$k] = $insnum;
 					}
-					$newexp .= '.xinsert'.$insnum;
+					$newexp .= '.xinsert' . $insnum;
 					static::$replacement[$insnum] = $fn;
 					$r = static::parseexp($fnexp, true, $fn);
 					static::$replacement[$insnum] = $r; //Получается переменная значение которой формула а именно функция //и мы вставляем сюда сразу да без запоминаний
@@ -696,7 +695,7 @@ class Template {
 				$fnexp .= $ch;
 			} else {
 				if (in_array($ch, $specchars)) {
-					$newexp .= $fn.$ch;
+					$newexp .= $fn . $ch;
 					$fn = '';
 				} else {
 					if ($ch !== '(') {
@@ -726,19 +725,19 @@ class Template {
 		$res = array();
 		$res['orig'] = $exp;
 		if ($fnnow) {
-			$res['orig'] = $fnnow.'('.$res['orig'].')';
+			$res['orig'] = $fnnow . '(' . $res['orig'] . ')';
 		}
 
 		if ($fnnow) {
 			$res['fn'] = static::parseBracket($fnnow);
-		}//в имени функции может содержать замены xinsert asdf[xinsert1].asdf. Массив как с запятыми но нужен только нулевой элемент, запятых не может быть/ Они уже отсеяны
+		} //в имени функции может содержать замены xinsert asdf[xinsert1].asdf. Массив как с запятыми но нужен только нулевой элемент, запятых не может быть/ Они уже отсеяны
 
 		$exp = static::parseStaple($exp);
-		
-	//Сюда проходит выражение exp без скобок, с заменами их на псевдо переменные
+
+		//Сюда проходит выражение exp без скобок, с заменами их на псевдо переменные
 		$l = mb_strlen($exp);
-		if ($l > 1 && mb_substr($exp,$l - 1,1) == ':' && mb_strpos($exp, ',') === false) {
-			$res['template'] = substr($exp, 0, -1);//удалили последний символ
+		if ($l > 1 && mb_substr($exp, $l - 1, 1) == ':' && mb_strpos($exp, ',') === false) {
+			$res['template'] = substr($exp, 0, -1); //удалили последний символ
 			return $res;
 		}
 		$cond = explode(',', $exp);
@@ -767,7 +766,7 @@ class Template {
 			return $res;
 		}
 
-		$cond = explode('&', $exp, 2);//a&b
+		$cond = explode('&', $exp, 2); //a&b
 		if (sizeof($cond) === 2) {
 			$res['cond'] = true;
 			$res['term'] = static::parseexp($cond[0], true);
@@ -777,7 +776,7 @@ class Template {
 			return $res;
 		}
 
-		$cond = explode('|', $exp, 2);//a|b
+		$cond = explode('|', $exp, 2); //a|b
 		if (sizeof($cond) === 2) {
 			$res['cond'] = true;
 			$res['term'] = static::parseexp($cond[0], true);
@@ -787,7 +786,7 @@ class Template {
 			return $res;
 		}
 
-		$symbols = array('!','=','>','<');
+		$symbols = array('!', '=', '>', '<');
 		$min = false;
 		$sym = false;
 		for ($i = 0, $l = sizeof($symbols); $i < $l; ++$i) {
@@ -805,7 +804,7 @@ class Template {
 		if ($sym) {
 			$cond = explode($sym, $exp, 3);
 			$res['cond'] = $sym;
-			$res['a'] = static::parseexp($cond[0]);//a&b|c   (1&0)|1=true  1&(0|1)=true  a&b|c
+			$res['a'] = static::parseexp($cond[0]); //a&b|c   (1&0)|1=true  1&(0|1)=true  a&b|c
 			$res['b'] = static::parseexp($cond[1]);
 
 			return $res;
@@ -848,7 +847,7 @@ class Template {
 			$ar = array();
 		} else {
 			$ar = explode(',', $var);
-		}//Запятые могут быть только на первом уровне, все вложенные запятые заменены на xinsert
+		} //Запятые могут быть только на первом уровне, все вложенные запятые заменены на xinsert
 		$res = array();
 
 		static::fora($ar, function ($v) use (&$res, &$var) {
@@ -862,11 +861,11 @@ class Template {
 	public static function fora(&$ar, $call, $i = null, &$group = null)
 	{
 		if (is_null($ar)) return;
-		if (!is_array($ar)||(!isset($ar[0])&&$ar)) { //Пробежка по индексному массиву
+		if (!is_array($ar) || (!isset($ar[0]) && $ar)) { //Пробежка по индексному массиву
 			return $call($ar, $i, $group);
 		}
-		foreach ($ar as $i => $v){
-			$r=static::fora($ar[$i], $call, $i, $ar);
+		foreach ($ar as $i => $v) {
+			$r = static::fora($ar[$i], $call, $i, $ar);
 			if (!is_null($r)) return $r;
 		}
 	}
@@ -894,15 +893,15 @@ class Template {
 		$start = false;
 		$str = '';
 		$name = '';
-		$open = 0;//Количество вложенных открытий
-		
-		$varar=str_split($var);
+		$open = 0; //Количество вложенных открытий
+
+		$varar = str_split($var);
 		for ($i = 0, $l = sizeof($varar); $i < $l; ++$i) {
-			$sym=$varar[$i];
+			$sym = $varar[$i];
 
 			if ($start && $sym === ']') {
 				if (!$open) {
-					$res[] = array(static::parseexp($name, true));//data.name().. data[name]
+					$res[] = array(static::parseexp($name, true)); //data.name().. data[name]
 					$start = false;
 					$str = '';
 					$name = '';
@@ -922,13 +921,13 @@ class Template {
 					if ($str) {
 						$res = array_merge($res, Sequence::right($str));
 					}
-					$r['var'] = array($res);//В переменных к шаблону запятые не обрабатываются. res это массив с одним элементом в котором уже элементов много
+					$r['var'] = array($res); //В переменных к шаблону запятые не обрабатываются. res это массив с одним элементом в котором уже элементов много
 					if ($r['multi']) {
 						$tpl = substr($tpl, 1);
 					}
-					
+
 					$r['tpl'] = static::make(array($tpl));
-					
+
 					if (!isset($r['tpl']['root'])) {
 						$r['tpl']['root'] = array('');
 					}
@@ -964,7 +963,7 @@ class Template {
 				} else {
 					$t = Sequence::right($v);
 
-	//a.b[b.c][c]
+					//a.b[b.c][c]
 					//[a,b,[b,c],[c]]
 					//b,[b,c]
 					//b,[b,c]
@@ -993,7 +992,7 @@ Template::$scope = array(
 	'~true' => true,
 	'~false' => false,
 	'~json' => function ($val) {
-		return json_encode($val,true);
+		return json_encode($val, true);
 	},
 	'~years' => function ($start) {
 		$y = date('Y');
@@ -1001,7 +1000,7 @@ Template::$scope = array(
 			return $y;
 		}
 
-		return $start.'&ndash;'.$y;
+		return $start . '&ndash;' . $y;
 	},
 	'~date' => function ($format, $time = null) {
 		//if(is_null($time))$time=time(); Нельзя выводить текущую дату когда передан null так по ошибке будет не то выводится когда даты просто нет.
@@ -1044,7 +1043,6 @@ Template::$scope = array(
 		}
 
 		return $r;
-
 	},
 	'~obj' => function () {
 		$args = func_get_args();
@@ -1058,8 +1056,8 @@ Template::$scope = array(
 
 		return $obj;
 	},
-	
-	'~encode' => function($str){
+
+	'~encode' => function ($str) {
 		if (!is_string($str)) return $str;
 		if (!$str) return $str;
 		return urlencode($str);
@@ -1075,7 +1073,8 @@ Template::$scope = array(
 		}
 		if (is_array($obj)) {
 			return sizeof($obj);
-		} if (is_string($obj)) {
+		}
+		if (is_string($obj)) {
 			return mb_strlen($obj);
 		}
 
@@ -1090,12 +1089,12 @@ Template::$scope = array(
 		}
 	},
 	'~match' => function ($exp, $val) {
-		preg_match('/'.$exp.'/', $val, $match);
+		preg_match('/' . $exp . '/', $val, $match);
 
 		return $match;
 	},
 	'~test' => function ($exp, $val) {
-		$r = preg_match('/'.$exp.'/', $val);
+		$r = preg_match('/' . $exp . '/', $val);
 
 		return !!$r;
 	},
@@ -1110,15 +1109,15 @@ Template::$scope = array(
 		$res = Template::parse([$tpl], $data);
 		return $res;
 	},
-	 '~dataroot' => function (){
-        //return Template.moment.dataroot;
-        return Sequence::short(Template::$moment['dataroot']);
-    },
+	'~dataroot' => function () {
+		//return Template.moment.dataroot;
+		return Sequence::short(Template::$moment['dataroot']);
+	},
 	'~parse' => function ($str = '') {
 		$conf = Template::$moment;
 		if (!$str) return '';
 		if (is_array($str) && !$str[0]) return '';
-		$res = Template::parse($str, $conf['data'], 'root', $conf['dataroot'], 'root');//(url,data,tplroot,dataroot,tplempty){
+		$res = Template::parse($str, $conf['data'], 'root', $conf['dataroot'], 'root'); //(url,data,tplroot,dataroot,tplempty){
 		return $res;
 	},
 	'~indexOf' => function ($str, $v = null) {
@@ -1153,7 +1152,7 @@ Template::$scope = array(
 		return $r;
 	},
 	'~tel' => function ($phone) {
-		return preg_replace("/[^\d\+]/",'', $phone);
+		return preg_replace("/[^\d\+]/", '', $phone);
 	},
 	'~words' => function ($count, $one = '', $two = null, $five = null) {
 		if (is_null($two)) {
@@ -1171,7 +1170,7 @@ Template::$scope = array(
 			$count2 = mb_substr($str, mb_strlen($str) - 2, 1);
 			if ($count2 == 1) {
 				return $five;
-			}//xxx10-xxx19 (иначе 111-114 некорректно)
+			} //xxx10-xxx19 (иначе 111-114 некорректно)
 		}
 		if ($count == 1) {
 			return $one;
@@ -1231,13 +1230,13 @@ Template::$scope = array(
 		return true;
 	},
 	'~cut' => function ($len, $str) {
-        if (!$str || mb_strlen($str) < $len) {
-        	return $str;
-        } else {
-        	$str = mb_substr($str, 0, $len);
-        	return $str.'...';
-        }
-    },
+		if (!$str || mb_strlen($str) < $len) {
+			return $str;
+		} else {
+			$str = mb_substr($str, 0, $len);
+			return $str . '...';
+		}
+	},
 	'~after' => function ($num) {
 		if (!$num) return true;
 		$conf = Template::$moment;
@@ -1281,7 +1280,7 @@ Template::$scope = array(
 		//if (preg_match("/^[\-!~]/", $src)) return '/'.$src;
 		if (preg_match("/^https{0,1}:\/\//", $src)) return $src;
 		if (preg_match("/^\//", $src)) return $src;
-		return '/'.$src;
+		return '/' . $src;
 	},
 	'~random' => function () {
 		$args = func_get_args();
@@ -1317,7 +1316,6 @@ Template::$scope = array(
 			$ar[$i] = [];
 			$ar[$i][$name] = $val;
 			$ar[$i][$sn] = $sv;
-			
 		}
 		return $ar;
 	},
@@ -1354,14 +1352,14 @@ Template::$scope = array(
 		if (mb_strlen($cost) > 4) {
 			//1000
 			$l = mb_strlen($cost);
-			$cost = mb_substr($cost, 0, $l - 3).$inp.mb_substr($cost, $l - 3, $l);
+			$cost = mb_substr($cost, 0, $l - 3) . $inp . mb_substr($cost, $l - 3, $l);
 		}
 
 		if ($cop) {
 			if ($text) {
-				$cost = $cost.','.$cop;
+				$cost = $cost . ',' . $cop;
 			} else {
-				$cost = $cost.'<small>,'.$cop.'</small>';
+				$cost = $cost . '<small>,' . $cop . '</small>';
 			}
 		}
 
@@ -1370,8 +1368,8 @@ Template::$scope = array(
 );
 
 
-Template::$fs = array (
-	"load" => function($src){
+Template::$fs = array(
+	"load" => function ($src) {
 		return file_get_contents($src);
 	}
 );
