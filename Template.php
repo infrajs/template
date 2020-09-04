@@ -1319,8 +1319,8 @@ Template::$scope = array(
 		}
 		return $ar;
 	},
-	'~cost' => function ($cost, $text = false) {
-
+	'~cost' => function ($cost, $text = false, $float = false) {
+		$number = $cost;
 		$cost = (string) $cost;
 		$ar = explode('.', $cost);
 		if (sizeof($ar) == 1) {
@@ -1354,12 +1354,20 @@ Template::$scope = array(
 			$l = mb_strlen($cost);
 			$cost = mb_substr($cost, 0, $l - 3) . $inp . mb_substr($cost, $l - 3, $l);
 		}
-
-		if ($cop) {
-			if ($text) {
-				$cost = $cost . ',' . $cop;
-			} else {
-				$cost = $cost . '<small>,' . $cop . '</small>';
+		
+		if ($number < 99) {
+			if ($cop) {
+				if ($text) {
+					$cost = $cost . ',' . $cop;
+				} else {
+					$cost = $cost . '<small>,' . $cop . '</small>';
+				}
+			} else if($float) {
+				if ($text) {
+					$cost = $cost.',00';
+				} else {
+					$cost = $cost.'<small>,00</small>';
+				}
 			}
 		}
 

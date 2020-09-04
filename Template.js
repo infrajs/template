@@ -1130,9 +1130,8 @@ let Template = {
 			}
 			return ar;
 		},
-		'~cost': function (cost, text) {
-
-
+		'~cost': function (cost, text, float) {
+			let number = cost
 			if (!cost && cost != 0) cost = '';
 			cost = String(cost);
 
@@ -1158,9 +1157,14 @@ let Template = {
 				cost = cost.substr(0, l - 3) + inp + cost.substr(l - 3, l);
 			}
 
-			if (cop) {
-				if (text) cost = cost + ',' + cop;
-				else cost = cost + '<small>,' + cop + '</small>';
+			if (number < 99) {
+				if (cop) {
+					if (text) cost = cost + ',' + cop;
+					else cost = cost + '<small>,' + cop + '</small>';
+				} else if(float) {
+					if (text) cost = cost + ',00';
+					else cost = cost + '<small>,00</small>';
+				}
 			}
 
 			return cost;
