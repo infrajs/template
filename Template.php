@@ -992,7 +992,7 @@ Template::$scope = array(
 	'~true' => true,
 	'~false' => false,
 	'~json' => function ($val) {
-		return json_encode($val, true);
+		return json_encode($val, JSON_UNESCAPED_UNICODE);
 	},
 	'~years' => function ($start) {
 		$y = date('Y');
@@ -1152,6 +1152,7 @@ Template::$scope = array(
 		return $r;
 	},
 	'~tel' => function ($phone) {
+		if (!$phone) return '';
 		return preg_replace("/[^\d\+]/", '', $phone);
 	},
 	'~words' => function ($count, $one = '', $two = null, $five = null) {
@@ -1349,10 +1350,23 @@ Template::$scope = array(
 			$inp = '&nbsp;';
 		}
 
-		if (mb_strlen($cost) > 4) {
+		if (mb_strlen($cost) > 3) {
 			//1000
 			$l = mb_strlen($cost);
-			$cost = mb_substr($cost, 0, $l - 3) . $inp . mb_substr($cost, $l - 3, $l);
+
+			//$cost = mb_substr($cost, 0, $l - 3) . $inp . mb_substr($cost, $l - 3, $l - 6) . $inp . mb_substr($cost, $l - 6, $l - 9);
+			
+			if (mb_strlen($cost) > 6) {
+				$last = mb_substr($cost, $l - 3, 3);
+				$before = mb_substr($cost, $l - 6, 3);
+				$start = mb_substr($cost, 0, $l - 6);
+				$cost = $start . $inp . $before . $inp . $last;
+			} else {
+				$last = mb_substr($cost, $l - 3, 3);
+				$start = mb_substr($cost, 0, $l - 3);
+				$cost = $start . $inp . $last;
+				//$cost = mb_substr($cost, 0, $l - 3) . $inp . mb_substr($cost, $l - 3, $l);
+			}
 		}
 		
 		if ($number < 99) {
@@ -1361,12 +1375,14 @@ Template::$scope = array(
 					$cost = $cost . ',' . $cop;
 				} else {
 					$cost = $cost . '<small>,' . $cop . '</small>';
+					//$cost = $cost . ',' . $cop . '';
 				}
 			} else if($float) {
 				if ($text) {
 					$cost = $cost.',00';
 				} else {
 					$cost = $cost.'<small>,00</small>';
+					//$cost = $cost.',00';
 				}
 			}
 		}

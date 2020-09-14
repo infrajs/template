@@ -954,6 +954,7 @@ let Template = {
 			return res;
 		},
 		'~tel': function (phone) {
+			if (!phone) return '';
 			return phone.replace(/[^\d\+]/g,'')
 		},
 		'~words': function (count, one, two, five) {
@@ -1152,10 +1153,27 @@ let Template = {
 			let inp = '&nbsp;';
 			if (text) inp = ' ';
 
-			if (cost.length > 4) { //1000
+			if (cost.length > 3) { //1000
 				var l = cost.length;
-				cost = cost.substr(0, l - 3) + inp + cost.substr(l - 3, l);
+				if (l > 6) {
+					//$last = mb_substr($cost, $l - 3, 3);
+					//$before = mb_substr($cost, $l - 6, 3);
+					//$start = mb_substr($cost, 0, $l - 6);
+
+					const last = cost.substr(l - 3, 3)
+					const before = cost.substr(l - 6, 3);
+					const start = cost.substr(0, l - 6)
+
+					cost = start + inp + before + inp + last
+				} else {
+					const last = cost.substr(l - 3, 3)
+					const start = cost.substr(0, l - 3)
+					cost = start + inp + last
+					//cost = cost.substr(0, l - 3) + inp + cost.substr(l - 3, l);
+				}
+				
 			}
+
 
 			if (number < 99) {
 				if (cop) {
