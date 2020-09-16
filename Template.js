@@ -122,7 +122,9 @@ let Template = {
 	},
 	parse: function (url, data, tplroot, dataroot, tplempty) {
 		var tpls = this.make(url, tplempty)
+
 		tpls = this.includes(tpls, data, dataroot)
+
 		var text = this.exec(tpls, data, tplroot, dataroot)
 		return text;
 	},
@@ -146,6 +148,7 @@ let Template = {
 	includes: function (tpls, data, dataroot) {
 		var newtpls = {};
 		var find = {};
+
 		for (var key in tpls) {
 			newtpls[key] = tpls[key];
 			var val = tpls[key];
@@ -154,17 +157,20 @@ let Template = {
 			if (key.charAt(key.length - 1) == ':') {
 				var src = Template.exec(tpls, data, key, dataroot);
 				newtpls[key] = [];
-
+				if (!src) continue;
 				//var src=val[0];
 				//src=src.replace(/<\/?[^>]+>/gi, '');
 				var tpls2 = this.make(src);
 				tpls2 = this.includes(tpls2, data, dataroot);
+				
 				if (key.length > 1) key = key.slice(0, -1) + '.';
 				else key = '';
+
 				find[key] = tpls2;
+				
 			}
 		}
-
+		
 		for (var name in find) {
 			var t = find[name];
 			for (var k in t) {
