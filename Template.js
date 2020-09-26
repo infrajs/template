@@ -1049,8 +1049,9 @@ let Template = {
 			return ar;
 		},
 		'~multi': function (...args) {
-			var n = 1;
+			let n = 1;
 			for (let i = 0, l = args.length; i < l; i++) n *= Number(args[i]);
+			n = Math.round(n * 1000) / 1000;
 			return n;
 		},
 		'~even': function () {

@@ -1211,7 +1211,6 @@ Template::$scope = array(
 		for ($i = 0, $l = sizeof($args); $i < $l; ++$i) {
 			$n *= $args[$i];
 		}
-
 		return $n;
 	},
 	'~before' => function ($num) {
