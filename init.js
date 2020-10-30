@@ -19,7 +19,7 @@ Template.scope.Config.get=function(name){
 }
 Seq.set(Template.scope, ['View', 'getHost'], function () { return View.getHost();} );
 
-
+Template.scope['Load'] = Load;
 Template.scope['Path'] = {};
 Template.scope['Path']['encode'] = function (str) {
 	return Path.encode(str);
