@@ -1129,6 +1129,7 @@ let Template = {
 			return n;
 		},
 		'~split': function (name, str, sn, sv) {
+			str = String(str)
 			let ar = str.split(',');
 			for (let i = 0, l = ar.length; i < l; i++) {
 				let val = ar[i].trim();
