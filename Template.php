@@ -183,8 +183,8 @@ class Template
 			if (sizeof($val) < 1) {
 				continue;
 			}
-			if (((string) $key){
-			mb_strlen($key) - 1} == ':') {
+			if (((string) $key)[mb_strlen($key) - 1] == ':') 
+			{
 				$data = true;
 				$src = static::exec($tpls, $data, $key);
 				$newtpls[$key] = array(); //Иначе два раза применится
