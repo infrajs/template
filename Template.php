@@ -606,7 +606,7 @@ class Template
 			return $v;
 		} elseif ($d['term']) {
 			$var = static::getValue($conf, $d['term'], true);
-			if (is_null($var) || $var === false || $var === '' || $var === 0) {
+			if (is_null($var) || $var === false || $var === '' || $var === 0 || $var === 0.0) {
 				//Пустой массив не false
 				$r = static::getValue($conf, $d['no'], $term);
 			} else {
@@ -986,8 +986,10 @@ Template::$scope = array(
 		if (is_bool($v)) return 'boolean';
 		if (is_string($v)) return 'string';
 		if (is_integer($v)) return 'number';
+		if (is_float($v)) return 'float';
 		if (is_array($v)) return 'object';
 		if (is_callable($v)) return 'function';
+		return 'untype';
 	},
 	'~true' => true,
 	'~false' => false,
