@@ -5,6 +5,8 @@ import { Path } from '/vendor/infrajs/path/Path.js'
 import { Load } from '/vendor/infrajs/load/Load.js'
 import { Each } from '/vendor/infrajs/each/Each.js'
 import { phpdate } from '/vendor/infrajs/phpdate/phpdate.js'
+import { Access } from '/vendor/infrajs/access/Access.js'
+
 /*
 parse
 	make
@@ -1221,4 +1223,35 @@ let Template = {
 	}
 }
 window.Template = Template;
+
+
+Template.scope['~data'] = function (src) {
+	return Load.loadJSON(src);
+}
+
+
+Template.scope['~conf'] = Config.get();
+
+Template.scope.Config = {};
+Template.scope.Config.get=function(name){
+	return Config.get(name);
+}
+Seq.set(Template.scope, ['View', 'getHost'], function () { return View.getHost();} );
+
+Template.scope['Load'] = Load;
+Template.scope['Path'] = {};
+Template.scope['Path']['encode'] = function (str) {
+	return Path.encode(str);
+}
+
+Template.scope['Access'] = {};
+Template.scope['Access']['adminTime'] = function () {
+	return Access.adminTime();
+};
+Template.scope['Access']['getDebugTime'] = function () {
+	return Access.getDebugTime();
+};
+
+
+
 export { Template }
