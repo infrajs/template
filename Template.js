@@ -1163,7 +1163,7 @@ let Template = {
 			let inp = '&nbsp;';
 			if (text) inp = ' ';
 
-			if (cost.length > 3) { //1000
+			if (cost.length > 4) { //1000
 				var l = cost.length;
 				if (l > 6) {
 					//$last = mb_substr($cost, $l - 3, 3);

@@ -1351,7 +1351,7 @@ Template::$scope = array(
 			$inp = '&nbsp;';
 		}
 
-		if (mb_strlen($cost) > 3) {
+		if (mb_strlen($cost) > 4) {
 			//1000
 			$l = mb_strlen($cost);
 
