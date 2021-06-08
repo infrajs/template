@@ -25,9 +25,9 @@ parse
  */
 
 /*
-  * условия {asdf?:asdf} {asdf&asdf?:asdf} {asdf|asdf?:asdf}
-  * {data:asd{asdf}}
-  *
+	* условия {asdf?:asdf} {asdf&asdf?:asdf} {asdf|asdf?:asdf}
+	* {data:asd{asdf}}
+	*
  */
 /*
  * url нужен чтобы кэширвоать загрузку. текст передаётся если надо [text]
@@ -1121,6 +1121,10 @@ Template::$scope = array(
 		if (is_array($str) && !$str[0]) return '';
 		$res = Template::parse($str, $conf['data'], 'root', $conf['dataroot'], 'root'); //(url,data,tplroot,dataroot,tplempty){
 		return $res;
+	},
+	'~islocal' => function () {
+		$ip = $_SERVER['REMOTE_ADDR'];
+		return in_array($ip, array("127.0.0.1","::1"));
 	},
 	'~indexOf' => function ($str, $v = null) {
 		//Начиная с нуля
