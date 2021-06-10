@@ -961,6 +961,9 @@ let Template = {
 			var res = Template.parse(str, conf.data, 'root', conf['dataroot'], 'root'); //(url,data,tplroot,dataroot,tplempty){
 			return res;
 		},
+		'~islocal': function (str) {
+			return /\.ru\.org$/.test(location.host)
+		},
 		'~tel': function (phone) {
 			if (!phone) return '';
 			return phone.replace(/[^\d\+]/g,'')
