@@ -166,16 +166,15 @@ class Template
 	}
 	public static function parse($template, $data = array(), $tplroot = 'root', $dataroot = '', $tplempty = 'root')
 	{
-		$tpls = static::make($template, $tplempty);
-		$tpls = static::includes($tpls, $data, $dataroot);
-
-		$text = static::exec($tpls, $data, $tplroot, $dataroot);
-
+		$res = static::make($template, $tplempty);
+		$tpls = static::includes($res, $data, $dataroot);
+		$text = static::exec($tpls, $data, $tplroot, $dataroot, $res['tcounter']);
 		return $text;
 	}
 
-	public static function includes($tpls, $data, $dataroot)
+	public static function includes($res, $data, $dataroot)
 	{
+		$tpls = $res['tpls'];
 		$newtpls = array();
 		$find = array();
 		foreach ($tpls as $key => $val) {
@@ -186,17 +185,18 @@ class Template
 			if (((string) $key)[mb_strlen($key) - 1] == ':') 
 			{
 				$data = true;
-				$src = static::exec($tpls, $data, $key);
+				$src = static::exec($tpls, $data, $key, $res['tcounter']);
 				$newtpls[$key] = array(); //Иначе два раза применится
 				$text = static::load($src);
-				$tpls2 = static::make(array($text));
-				$tpls2 = static::includes($tpls2, $data, $dataroot);
+				$res2 = static::make(array($text));
+				$tpls2 = $res2['tpls'];
+				$tpls2 = static::includes($res2, $data, $dataroot);
 				$key = mb_substr($key, 0, -1);
 				if ($key) $key .= '.';
 				$find[$key] = $tpls2;
 			}
 		}
-
+		
 		foreach ($find as $name => &$t) {
 			foreach ($t as $k => &$subtpl) {
 				$k = $name . $k;
@@ -255,11 +255,13 @@ class Template
 		return $fn($url);
 	}
 	public static $once = array();
+	public static $tcounter = 0;
+	public static $scounter = 0;
+	public static $scounterrel = [];
 	public static function &make($url, $tplempty = 'root')
 	{
 		$key = json_encode([$url, $tplempty], JSON_UNESCAPED_UNICODE);
 		if (isset(Template::$once[$key])) return Template::$once[$key];
-
 
 		if (is_array($url)) $template = $url[0];
 		else $template = static::load($url);
@@ -268,15 +270,31 @@ class Template
 		$ar = static::prepare($template);
 		static::analysis($ar);
 		$tpls = static::getTpls($ar, $tplempty);
-
 		if (!$tpls) $tpls[$tplempty] = array();
 		//Пустой шаблон добавляется когда вообще ничего нет
 		//$res=static::parseEmptyTpls($tpls);
-		Template::$once[$key] = $tpls;
-		return $tpls;
+		Template::$tcounter++;
+		$res = ['tpls' => $tpls, 'tcounter' => Template::$tcounter];
+		foreach ($tpls as $s => $v) {
+			Template::$scounter++;
+		}
+		Template::$once[$key] = $res;
+		return $res;
 	}
-	public static function exec(&$tpls, &$data, $tplroot = 'root', $dataroot = '')
-	{
+	//public static $pcounter = 0;
+	public static function exec(&$tpls, &$data, $tplroot = 'root', $dataroot = '', $tcounter = 0) {
+		//Template::$scope['~pid'] = 'p'.(++Template::$pcounter);
+		Template::$scope['~tid'] = 't'.$tcounter;
+		$sid = Template::$scope['~sid'];
+		Template::$scope['~sid'] = 's'.$tcounter.$tplroot;
+		
+		//Template::$scope['~sid'] = 's0';
+		// if (isset($tpls[$tplroot])) {
+		// 	Template::$scope['~tid'] = 't';
+		// 	Template::$scope['~sid'] = 's';
+		// }
+		
+		
 		//Только тут нет conf
 		if (is_null($tplroot)) {
 			$tplroot = 'root';
@@ -286,12 +304,21 @@ class Template
 		}
 
 		$dataroot = Sequence::right($dataroot);
-		$conftpl = array('tpls' => &$tpls, 'data' => &$data, 'tplroot' => &$tplroot, 'dataroot' => $dataroot);
+
+		$conftpl = array(
+			'tcounter' => $tcounter, 
+			'tpls' => &$tpls, 
+			'data' => &$data, 
+			'tplroot' => &$tplroot, 
+			'dataroot' => $dataroot
+		);
+
 		$r = static::getVar($conftpl, $dataroot);
 		$tpldata = $r['value'];
 		//if(!$tpldata&&!is_array($tpldata)&&$tpldata!=='0'&&$tpldata!==0)return '';//Когда нет данных
 
 		if (is_null($tpldata) || $tpldata === false || $tpldata === '') {
+			Template::$scope['~sid'] = $sid;
 			return '';
 		} //Данные должны быть 0 подходит
 
@@ -309,7 +336,9 @@ class Template
 
 
 
-		return static::execTpl($conftpl);
+		$html = static::execTpl($conftpl);
+		Template::$scope['~sid'] = $sid;
+		return $html;
 	}
 	public static function execTpl($conf)
 	{
@@ -319,8 +348,6 @@ class Template
 		//dataroot меняется при подключении шаблона и при a().b для b dataroot будет a - так нельзя так как b от корня не может быть взят. с.b должно быть
 		//var - asdf[asdf] но получить такую переменную нельзя нужно расчитать этот путь getPath asdf.qwer и где же хранить этот путь
 		//lastroot нужен чтобы прощитать с каким dataroot нужно подключить шаблон это всегда путь от корня
-
-
 
 		foreach ($conf['tpl'] as $i => $d) {
 
@@ -534,11 +561,10 @@ class Template
 	}
 	public static function getOnlyVar(&$conf, &$d, $term, $i = 0)
 	{
-
 		if (isset($d['tpl']) && is_array($d['tpl'])) { //{asdf():tpl}
 			$ts = array($d['tpl'], $conf['tpls']);
 
-			$tpl = static::exec($ts, $conf['data'], 'root', $conf['dataroot']);
+			$tpl = static::exec($ts, $conf['data'], 'root', $conf['dataroot'], $conf['tcounter']);
 
 			$r = static::getVar($conf, $d['var'][$i]);
 			$v = $r['value'];
@@ -547,12 +573,12 @@ class Template
 			$h = '';
 			if (!$d['multi']) {
 				$droot = $lastroot;
-				$h = static::exec($conf['tpls'], $conf['data'], $tpl, $droot);
+				$h = static::exec($conf['tpls'], $conf['data'], $tpl, $droot, $conf['tcounter']);
 			} else {
 				if ($v) {
 					foreach ($v as $kkk => $vvv) {
 						$droot = array_merge($lastroot, array($kkk));
-						$h .= static::exec($conf['tpls'], $conf['data'], $tpl, $droot);
+						$h .= static::exec($conf['tpls'], $conf['data'], $tpl, $droot, $conf['tcounter']);
 					}
 				}
 				/* infra_foru($v,function(&$v,$k) use(&$d,&$h,&$conf,&$lastroot,&$tpl){
@@ -587,6 +613,7 @@ class Template
 			return $d;
 		}
 
+
 		if (!empty($d['cond']) && !isset($d['term'])) {
 			$a = static::getValue($conf, $d['a'], false);
 			$b = static::getValue($conf, $d['b'], false);
@@ -616,7 +643,6 @@ class Template
 			return $r;
 		}
 	}
-
 	public static function getTpls(&$ar, $subtpl = 'root')
 	{
 		//subtpl - первый подшаблон с которого начинается если конкретно имя не указано
@@ -760,7 +786,7 @@ class Template
 				$res['no'] = static::parseexp($cond[2]);
 			} else {
 				$res['yes'] = static::parseexp($cond[1]);
-				$res['no'] = static::parseexp('$false');
+				$res['no'] = static::parseexp('~false');
 			}
 
 			return $res;
@@ -771,7 +797,7 @@ class Template
 			$res['cond'] = true;
 			$res['term'] = static::parseexp($cond[0], true);
 			$res['yes'] = static::parseexp($cond[1]);
-			$res['no'] = static::parseexp('$false');
+			$res['no'] = static::parseexp('~false');
 
 			return $res;
 		}
@@ -926,7 +952,7 @@ class Template
 						$tpl = substr($tpl, 1);
 					}
 
-					$r['tpl'] = static::make(array($tpl));
+					$r['tpl'] = static::make(array($tpl))['tpls'];
 
 					if (!isset($r['tpl']['root'])) {
 						$r['tpl']['root'] = array('');
@@ -981,6 +1007,7 @@ class Template
 }
 
 Template::$scope = array(
+	'~sid' => 's0',
 	'~typeof' => function ($v = null) {
 		if (is_null($v)) return 'null';
 		if (is_bool($v)) return 'boolean';
@@ -1275,6 +1302,10 @@ Template::$scope = array(
 
 		return $n;
 	},
+	// '~sid' => function () {
+	// 	$conf = Template::$moment;
+	// 	return 's'.$conf['tcounter'].$conf['tplroot'];
+	// },
 	'~odd' => function () {
 		$r = Template::$scope['~even'];
 		return !$r();

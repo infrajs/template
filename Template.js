@@ -123,11 +123,9 @@ let Template = {
 		});
 	},
 	parse: function (url, data, tplroot, dataroot, tplempty) {
-		var tpls = this.make(url, tplempty)
-
-		tpls = this.includes(tpls, data, dataroot)
-
-		var text = this.exec(tpls, data, tplroot, dataroot)
+		const res = this.make(url, tplempty)
+		const tpls = this.includes(res, data, dataroot)
+		const text = this.exec(tpls, data, tplroot, dataroot, res['tcounter']);
 		return text;
 	},
 	clone: function (obj) {
@@ -147,9 +145,10 @@ let Template = {
 		}
 		return temp;
 	},
-	includes: function (tpls, data, dataroot) {
-		var newtpls = {};
-		var find = {};
+	includes: function (res, data, dataroot) {
+		const tpls = res['tpls']
+		const newtpls = { };
+		const find = { };
 
 		for (var key in tpls) {
 			newtpls[key] = tpls[key];
@@ -157,19 +156,18 @@ let Template = {
 			if (val.length < 1) continue;
 
 			if (key.charAt(key.length - 1) == ':') {
-				var src = Template.exec(tpls, data, key, dataroot);
+				var src = Template.exec(tpls, data, key, dataroot, res['tcounter']);
 				newtpls[key] = [];
 				if (!src) continue;
 				//var src=val[0];
 				//src=src.replace(/<\/?[^>]+>/gi, '');
-				var tpls2 = this.make(src);
-				tpls2 = this.includes(tpls2, data, dataroot);
+				var res2 = this.make(src,'root',);
+				const tpls2 = this.includes(res2, data, dataroot);
 				
 				if (key.length > 1) key = key.slice(0, -1) + '.';
 				else key = '';
 
 				find[key] = tpls2;
-				
 			}
 		}
 		
@@ -227,14 +225,14 @@ let Template = {
 			}
 		}
 	},
-	make: function (url, tplempty) { //tplempty - имя для подшаблона который будет пустым в документе начнётся без имени
+	tcounter: 0,
+	scounter: 0,
+	make: function (url, tplempty = 'root') { //tplempty - имя для подшаблона который будет пустым в документе начнётся без имени
 		var stor = this.store();
 		//url строка и массив возвращают одну строку и кэш у обоих вариантов будет одинаковый
 		if (stor.cache.hasOwnProperty(url.toString())) return stor.cache[url];
-		if (typeof (tplempty) !== 'string') tplempty = 'root';
 		if (typeof (url) == 'string') var template = Load.loadTEXT(url);
 		else if (url) var template = url[0];
-
 
 		var ar = this.prepare(template);
 		this.analysis(ar); //[{},'asdfa',{},'asdfa']
@@ -244,18 +242,28 @@ let Template = {
 		for (some in tpls) break;
 		if (!some) tpls[tplempty] = []; //Пустой шаблон добавляется когда вообще ничего нет
 		//var res=this.parseEmptyTpls(tpls);//[{root:[]}, [{some:[]}], [{asdf:[]}]]
-		stor.cache[url.toString()] = tpls;
-
-
-		return tpls;
+		Template.tcounter++
+		const res = { tcounter: Template.tcounter, tpls:tpls }
+		for (const s in tpls) {
+			Template.scounter++
+		}
+		stor.cache[url.toString()] = res
+		return res;
 	},
-	exec: function (tpls, data, tplroot, dataroot) { //Только тут нет conf
-		if (tplroot == null) tplroot = 'root';
-		if (dataroot == null) dataroot = '';
-		
+	//pcounter: 0,
+	exec: function (tpls, data, tplroot = 'root', dataroot = '', tcounter = 0) { //Только тут нет conf
+		//Template.scope['~pid'] = 'p' + (++Template.pcounter)
+		Template.scope['~tid'] = 't' + tcounter
+		const sid = Template.scope['~sid']
+		Template.scope['~sid'] = 's' + tcounter + tplroot
 		dataroot = Seq.right(dataroot);
-		
-		var conftpl = { 'tpls': tpls, 'data': data, 'tplroot': tplroot, 'dataroot': dataroot };
+		var conftpl = { 
+			'tcounter': tcounter,
+			'tpls': tpls, 
+			'data': data, 
+			'tplroot': tplroot, 
+			'dataroot': dataroot 
+		};
 		var r = Template.getVar(conftpl, dataroot);
 		var tpldata = r['value'];
 		if (typeof (tpldata) == 'undefined' || tpldata === null || tpldata === false || tpldata === '') return ''; //Когда нет данных
@@ -263,7 +271,10 @@ let Template = {
 		var tpl = Each.exec(tpls, function (t) {
 			return t[tplroot];
 		});
-		if (!tpl) return tplroot; //Когда нет шаблона
+		if (!tpl) {
+			Template.scope['~sid'] = sid
+			return tplroot; //Когда нет шаблона
+		}
 
 		conftpl['tpl'] = tpl;
 
@@ -294,8 +305,8 @@ let Template = {
 		//
 
 
-		var html = '';
-		html += this.execTpl(conftpl);
+		const html = this.execTpl(conftpl);
+		Template.scope['~sid'] = sid
 		return html;
 	},
 	execTpl: function (conf) {
@@ -464,7 +475,7 @@ let Template = {
 		if (!i) i = 0;
 		if (typeof (d['tpl']) == 'object') { //{asdf():tpl}
 			var ts = [d['tpl'], conf['tpls']];
-			var tpl = this.exec(ts, conf['data'], 'root', conf['dataroot']);
+			var tpl = this.exec(ts, conf['data'], 'root', conf['dataroot'], conf['tcounter']);
 
 			var r = this.getVar(conf, d['var'][i]);
 			var v = r['value'];
@@ -472,11 +483,11 @@ let Template = {
 			var h = '';
 			if (!d['multi']) {
 				var droot = lastroot.concat();
-				h = this.exec(conf['tpls'], conf['data'], tpl, droot);
+				h = this.exec(conf['tpls'], conf['data'], tpl, droot, conf['tcounter']);
 			} else {
 				this.foru(v, function (v, k) {
 					var droot = lastroot.concat([k]);
-					h += Template.exec(conf['tpls'], conf['data'], tpl, droot);
+					h += Template.exec(conf['tpls'], conf['data'], tpl, droot, conf['tcounter']);
 				});
 			}
 			v = h;
@@ -670,7 +681,7 @@ let Template = {
 				res['no'] = this.parseexp(cond2);
 			} else {
 				res['yes'] = this.parseexp(cond1);
-				res['no'] = this.parseexp('$false');
+				res['no'] = this.parseexp('~false');
 			}
 			return res;
 		}
@@ -682,7 +693,7 @@ let Template = {
 			res['cond'] = true;
 			res['term'] = this.parseexp(cond0, true);
 			res['yes'] = this.parseexp(cond1);
-			res['no'] = this.parseexp('$false');
+			res['no'] = this.parseexp('~false');
 			return res;
 		}
 
@@ -802,7 +813,7 @@ let Template = {
 
 					r['var'] = [res]; //В переменных к шаблону запятые не обрабатываются. res это массив с одним элементом в котором уже элементов много
 					if (r['multi']) tpl = tpl.substr(1);
-					r['tpl'] = this.make([tpl]);
+					r['tpl'] = this.make([tpl])['tpls'];
 					if (!r['tpl']['root']) r['tpl']['root'] = [''];
 					return [r];
 				}
@@ -842,14 +853,10 @@ let Template = {
 		return r;
 	},
 	scope: { //Набор функций доступных везде ну и значений разных $ - стандартная функция шаблонизатора, которых нет в глобальной области, остальные расширения совпадающие с глобальной областью javascript и в его синтаксисе
-		'$typeof': function (v) {
-			return typeof (v);
-		},
+		'~sid': 's0',
 		'~typeof': function (v) {
 			return typeof (v);
 		},
-		'$true': true,
-		'$false': false,
 		'~true': true,
 		'~false': false,
 		'~json': function (val) {
@@ -864,14 +871,6 @@ let Template = {
 			if (!time) return '';
 			if (time === true) time = new Date();
 			return phpdate(format, time);
-		},
-		'$date': function (format, time) {
-			if (!time) return '';
-			if (time === true) time = new Date();
-			return phpdate(format, time);
-		},
-		'$obj': function (...args) {
-			return Template.scope['~obj'].apply(this, args);
 		},
 		'~obj': function (...args) { //создаём объект {$obj(name1,val1,name2,val2)}
 			var obj = {};
@@ -888,9 +887,6 @@ let Template = {
 			if (!str) return str;
 			return decodeURIComponent(str);
 		},
-		'$length': function (obj) {
-			return Template.scope['~length'](obj);
-		},
 		'~length': function (obj) {
 			if (!obj) return 0;
 			if (obj.constructor === Array) return obj.length;
@@ -904,9 +900,6 @@ let Template = {
 			}
 			if (obj.length != undefined) return obj.length;
 			return 0;
-		},
-		'$inArray': function (...args) {
-			return Template.scope['~inArray'].apply(this, args);
 		},
 		'~inArray': function (val, arr) {
 			if (!arr) return false;
@@ -1048,6 +1041,14 @@ let Template = {
 			for (let i = 0, l = args.length; i < l; i++) n += Number(args[i]);
 			return n;
 		},
+		// '~sid': function (...args) {
+		// 	const conf = Template.moment;
+		// 	return 's' + conf['tcounter'] + conf['tplroot'];
+		// },
+		// '~tid': function (...args) {
+		// 	const conf = Template.moment;
+		// 	return 't' + conf['tcounter'];
+		// },
 		'~array': function (...args) {
 			var ar = [];
 			for (let i = 0, l = args.length; i < l; i++) ar.push(args[i]);
