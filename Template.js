@@ -253,9 +253,9 @@ let Template = {
 	//pcounter: 0,
 	exec: function (tpls, data, tplroot = 'root', dataroot = '', tcounter = 0) { //Только тут нет conf
 		//Template.scope['~pid'] = 'p' + (++Template.pcounter)
-		Template.scope['~tid'] = 't' + tcounter
+		Template.scope['~tid'] = 't' + tcounter + 't'
 		const sid = Template.scope['~sid']
-		Template.scope['~sid'] = 's' + tcounter + tplroot
+		Template.scope['~sid'] = 't' + tcounter + 't' + Path.encode(tplroot) + 's' //1 11 = 11 1
 		dataroot = Seq.right(dataroot);
 		var conftpl = { 
 			'tcounter': tcounter,
@@ -266,7 +266,10 @@ let Template = {
 		};
 		var r = Template.getVar(conftpl, dataroot);
 		var tpldata = r['value'];
-		if (typeof (tpldata) == 'undefined' || tpldata === null || tpldata === false || tpldata === '') return ''; //Когда нет данных
+		if (typeof (tpldata) == 'undefined' || tpldata === null || tpldata === false || tpldata === '') {
+			Template.scope['~sid'] = sid
+			return ''; //Когда нет данных
+		}
 
 		var tpl = Each.exec(tpls, function (t) {
 			return t[tplroot];
@@ -853,7 +856,7 @@ let Template = {
 		return r;
 	},
 	scope: { //Набор функций доступных везде ну и значений разных $ - стандартная функция шаблонизатора, которых нет в глобальной области, остальные расширения совпадающие с глобальной областью javascript и в его синтаксисе
-		'~sid': 's0',
+		'~sid': 't0t0s',
 		'~typeof': function (v) {
 			return typeof (v);
 		},

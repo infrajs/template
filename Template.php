@@ -284,9 +284,9 @@ class Template
 	//public static $pcounter = 0;
 	public static function exec(&$tpls, &$data, $tplroot = 'root', $dataroot = '', $tcounter = 0) {
 		//Template::$scope['~pid'] = 'p'.(++Template::$pcounter);
-		Template::$scope['~tid'] = 't'.$tcounter;
+		Template::$scope['~tid'] = 't'.$tcounter.'t';
 		$sid = Template::$scope['~sid'];
-		Template::$scope['~sid'] = 's'.$tcounter.$tplroot;
+		Template::$scope['~sid'] = 't'.$tcounter.'t'.Path::encode($tplroot).'s';
 		
 		//Template::$scope['~sid'] = 's0';
 		// if (isset($tpls[$tplroot])) {
@@ -330,7 +330,10 @@ class Template
 			return false;
 		});
 
-		if (is_null($tpl)) return $tplroot; //Когда нет шаблона
+		if (is_null($tpl)) {
+			Template::$scope['~sid'] = $sid;
+			return $tplroot; //Когда нет шаблона
+		}
 
 		$conftpl['tpl'] = &$tpl;
 
@@ -1007,7 +1010,7 @@ class Template
 }
 
 Template::$scope = array(
-	'~sid' => 's0',
+	'~sid' => 's0s',
 	'~typeof' => function ($v = null) {
 		if (is_null($v)) return 'null';
 		if (is_bool($v)) return 'boolean';
