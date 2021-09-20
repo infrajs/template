@@ -1148,39 +1148,43 @@ let Template = {
 			}
 			return ar;
 		},
-		'~cost': function (cost, text, float) {
-			let number = cost
+		'~costround': cost => {
 			if (!cost && cost != 0) cost = '';
 			cost = String(cost);
+			const ar = cost.split(/[,\.]/)
+			cost = Number(ar[0]);
+			let cop = ''
+			if (cost < 100) {
+				if (ar.length >= 2) {
+					cop = ar[1];
+					if (cop.length == 1) {
+						cop += '0';
+					}
+					if (cop.length > 2) {
+						cop = cop.substring(0, 3);
+						cop = Math.round(cop / 10);
+					}
+					if (cop == '00') cop = '';
 
-			var ar = cost.split(/[,\.]/);
-			if (ar.length >= 2) {
-				var cost = ar[0];
-				var cop = ar[1];
-				if (cop.length == 1) {
-					cop += '0';
 				}
-				if (cop.length > 2) {
-					cop = cop.substring(0, 3);
-					cop = Math.round(cop / 10);
-				}
-				if (cop == '00') cop = '';
-
 			}
-			let inp = '&nbsp;';
+			return [cost, cop];
+		},
+		'~cost': function (number, text, float) {
+			const r = Template.scope['~costround'](number)
+			let cost = r[0]
+			const cop = r[1]
+			let inp = '&nbsp;'
 			if (text) inp = ' ';
-
-			if (cost.length > 4) { //1000
-				var l = cost.length;
+			const l = cost.length;
+			if (l > 4) { //1000
 				if (l > 6) {
 					//$last = mb_substr($cost, $l - 3, 3);
 					//$before = mb_substr($cost, $l - 6, 3);
 					//$start = mb_substr($cost, 0, $l - 6);
-
 					const last = cost.substr(l - 3, 3)
 					const before = cost.substr(l - 6, 3);
 					const start = cost.substr(0, l - 6)
-
 					cost = start + inp + before + inp + last
 				} else {
 					const last = cost.substr(l - 3, 3)
@@ -1191,16 +1195,14 @@ let Template = {
 				
 			}
 
-
-			if (number < 99) {
-				if (cop) {
-					if (text) cost = cost + ',' + cop;
-					else cost = cost + '<small>,' + cop + '</small>';
-				} else if(float) {
-					if (text) cost = cost + ',00';
-					else cost = cost + '<small>,00</small>';
-				}
+			if (cop) {
+				if (text) cost = cost + ',' + cop;
+				else cost = cost + '<small>,' + cop + '</small>';
+			} else if(float) {
+				if (text) cost = cost + ',00';
+				else cost = cost + '<small>,00</small>';
 			}
+			
 
 			return cost;
 		},

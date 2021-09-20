@@ -1359,43 +1359,42 @@ Template::$scope = array(
 		}
 		return $ar;
 	},
-	'~cost' => function ($cost, $text = false, $float = false) {
-		$number = $cost;
+	'~costround' => function ($cost) {
 		$cost = (string) $cost;
-		$ar = explode('.', $cost);
+		$ar = explode('.', $cost, 2);
 		if (sizeof($ar) == 1) {
-			$ar = explode(',', $cost);
+			$ar = explode(',', $cost, 2);
 		}
-
+		$cost = (int) $ar[0];
 		$cop = '';
-		if (sizeof($ar) >= 2) {
-			$cost = $ar[0];
-			$cop = $ar[1];
-			if (mb_strlen($cop) == 1) {
-				$cop .= '0';
-			}
-			if (mb_strlen($cop) > 2) {
-				$cop = mb_substr($cop, 0, 3);
-				$cop = round($cop / 10);
-			}
-			if ($cop == '00') {
-				$cop = '';
+		if ($cost < 100) {
+			if (sizeof($ar) >= 2) {
+				$cop = $ar[1];
+				if (mb_strlen($cop) == 1) {
+					$cop .= '0';
+				}
+				if (mb_strlen($cop) > 2) {
+					$cop = mb_substr($cop, 0, 3);
+					$cop = round($cop / 10);
+				}
+				if ($cop == '00') {
+					$cop = '';
+				}
 			}
 		}
-
-		if ($text) {
-			$inp = ' ';
-		} else {
-			$inp = '&nbsp;';
-		}
-
-		if (mb_strlen($cost) > 4) {
+		return [$cost, $cop];
+	},
+	'~cost' => function ($number, $text = false, $float = false) {
+		$r = Template::$scope['~costround']($number);
+		$cost = $r[0];
+		$cop = $r[1];
+		$inp = '&nbsp;';
+		if ($text) $inp = ' ';
+		$l = mb_strlen($cost);
+		if ($l > 4) {
 			//1000
-			$l = mb_strlen($cost);
-
 			//$cost = mb_substr($cost, 0, $l - 3) . $inp . mb_substr($cost, $l - 3, $l - 6) . $inp . mb_substr($cost, $l - 6, $l - 9);
-			
-			if (mb_strlen($cost) > 6) {
+			if ($l > 6) {
 				$last = mb_substr($cost, $l - 3, 3);
 				$before = mb_substr($cost, $l - 6, 3);
 				$start = mb_substr($cost, 0, $l - 6);
@@ -1407,22 +1406,20 @@ Template::$scope = array(
 				//$cost = mb_substr($cost, 0, $l - 3) . $inp . mb_substr($cost, $l - 3, $l);
 			}
 		}
-		
-		if ($number < 99) {
-			if ($cop) {
-				if ($text) {
-					$cost = $cost . ',' . $cop;
-				} else {
-					$cost = $cost . '<small>,' . $cop . '</small>';
-					//$cost = $cost . ',' . $cop . '';
-				}
-			} else if($float) {
-				if ($text) {
-					$cost = $cost.',00';
-				} else {
-					$cost = $cost.'<small>,00</small>';
-					//$cost = $cost.',00';
-				}
+		if ($cop) {
+			if ($text) {
+				$cost = $cost . ',' . $cop;
+			} else {
+
+				$cost = $cost . '<small>,' . $cop . '</small>';
+				//$cost = $cost . ',' . $cop . '';
+			}
+		} else if($float) {
+			if ($text) {
+				$cost = $cost.',00';
+			} else {
+				$cost = $cost.'<small>,00</small>';
+				//$cost = $cost.',00';
 			}
 		}
 
