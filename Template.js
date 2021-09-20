@@ -1161,8 +1161,9 @@ let Template = {
 						cop += '0';
 					}
 					if (cop.length > 2) {
-						cop = cop.substring(0, 3);
-						cop = Math.round(cop / 10);
+						cop = cop.substring(0, 3)
+						cop = Number(cop)
+						cop = Math.round(cop / 10)
 					}
 					if (cop == '00') cop = '';
 

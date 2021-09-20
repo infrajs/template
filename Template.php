@@ -1375,6 +1375,7 @@ Template::$scope = array(
 				}
 				if (mb_strlen($cop) > 2) {
 					$cop = mb_substr($cop, 0, 3);
+					$cop = (int) $cop;
 					$cop = round($cop / 10);
 				}
 				if ($cop == '00') {
