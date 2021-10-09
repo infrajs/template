@@ -1173,7 +1173,7 @@ let Template = {
 		},
 		'~cost': function (number, text, float) {
 			const r = Template.scope['~costround'](number)
-			let cost = r[0]
+			let cost = String(r[0])
 			const cop = r[1]
 			let inp = '&nbsp;'
 			if (text) inp = ' ';
