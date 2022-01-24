@@ -1148,6 +1148,10 @@ let Template = {
 			}
 			return ar;
 		},
+		'~round': (float, num = 0) => {
+			if (num) return Math.round(float * num * 10) / (num * 10);
+			return Math.round(float);
+		},
 		'~costround': cost => {
 			if (!cost && cost != 0) cost = '';
 			cost = String(cost);

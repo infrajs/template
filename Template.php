@@ -1359,6 +1359,9 @@ Template::$scope = array(
 		}
 		return $ar;
 	},
+	'~round' => function ($float, $num = 0) {
+		return round($float, $num);
+	},
 	'~costround' => function ($cost) {
 		$cost = (string) $cost;
 		$ar = explode('.', $cost, 2);
